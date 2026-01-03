@@ -83,7 +83,7 @@ jobs:
           script: |
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
             
-            export DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/{이미지이름}:${{ github.sha }}
+            export DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }}
             docker pull $DOCKER_IMAGE
             docker-compose -f docker-compose-${{ steps.check.outputs.target }}.yml up -d
 
