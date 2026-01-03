@@ -1,6 +1,5 @@
 # Java 21 베이스 이미지
-FROM eclipse-temurin:21-jdk-slim
-
+FROM amazoncorretto:21-alpine
 # 작업 디렉터리 설정
 WORKDIR /app
 
