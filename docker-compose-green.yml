@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  green:
+    image: ${DOCKER_IMAGE}
+    container_name: green
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - APP_COLOR=green
+    restart: unless-stopped
