@@ -1,7 +1,7 @@
 ---
 name: "✨ FEATURE TEMPLATE"
 about: FEATURE TEMPLATE
-title: ":sparkles: Feature - "
+title: "✨ Feature - "
 labels: "✨ feature"
 assignees: ''
 
