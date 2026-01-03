@@ -2,7 +2,7 @@ name: Blue-Green Deploy
 
 on:
   push:
-    branches: [dev, feat/#1_CI_CD_Pipeline]
+    branches: [dev]
 
 jobs:
   build:
@@ -21,13 +21,6 @@ jobs:
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
-
-      - name: Debug - Check file
-        run: |
-          echo "=== File size ==="
-          wc -c src/main/resources/application-prod.yml
-          echo "=== Line count ==="
-          wc -l src/main/resources/application-prod.yml      
 
       - name: Build with Gradle
         run: |
