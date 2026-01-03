@@ -39,7 +39,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/{이미지이름}:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/{이미지이름}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/comfit-backend:latest
 
   deploy:
     needs: build
