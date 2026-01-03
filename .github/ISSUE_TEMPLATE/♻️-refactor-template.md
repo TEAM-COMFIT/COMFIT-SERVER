@@ -1,7 +1,7 @@
 ---
 name: "♻️ REFACTOR TEMPLATE"
 about: REFACTOR TEMPLATE
-title: "[refactor] "
+title: "♻️ Refactor - "
 labels: "♻️ refactor"
 assignees: ''
 
