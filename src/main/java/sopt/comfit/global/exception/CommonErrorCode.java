@@ -19,7 +19,7 @@ public enum CommonErrorCode implements ErrorCode {
 
     // ==== 인증/인가 에러 (4xx) ====
     // ==== 인증 에러 (4xx) ====
-    INVALID_USER(HttpStatus.FORBIDDEN,"AUTH_001","권한이 없는 유저의 접근입니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN,"AUTH_001","권한이 없는 유저의 접근입니다."),
     INVALID_HEADER_VALUE(HttpStatus.UNAUTHORIZED,"AUTH_002", "올바르지 않은 헤더값입니다." ),
     EXPIRED_TOKEN_ERROR(HttpStatus.UNAUTHORIZED, "AUTH_003", "만료된 토큰입니다."),
     TOKEN_MALFORMED_ERROR(HttpStatus.UNAUTHORIZED, "AUTH_004", "토큰이 올바르지 않습니다."),

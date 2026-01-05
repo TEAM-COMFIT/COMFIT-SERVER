@@ -14,8 +14,6 @@ import sopt.comfit.global.security.exception.CustomAccessDeniedHandler;
 import sopt.comfit.global.security.exception.CustomAuthenticationEntryPointerHandler;
 import sopt.comfit.global.security.filter.JwtAuthenticationFilter;
 import sopt.comfit.global.security.filter.JwtExceptionFilter;
-import sopt.comfit.global.security.manager.JwtAuthenticationManager;
-import sopt.comfit.global.security.util.JwtUtil;
 
 @Configuration
 @EnableWebSecurity

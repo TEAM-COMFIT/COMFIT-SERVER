@@ -1,4 +1,4 @@
-package sopt.comfit.global.security.info;
+package sopt.comfit.global.security.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;

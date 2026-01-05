@@ -8,7 +8,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.exception.CommonErrorCode;
 import sopt.comfit.global.exception.ErrorCode;
-import sopt.comfit.global.security.info.AuthenticationResponse;
 
 import java.io.IOException;
 
@@ -20,7 +19,7 @@ public class CustomAuthenticationEntryPointerHandler implements AuthenticationEn
                          AuthenticationException authException) throws IOException, ServletException {
         ErrorCode errorCode = (ErrorCode) request.getAttribute("errorCode");
         if (errorCode == null){
-            AuthenticationResponse.makeFailureResponse(response, CommonErrorCode.INVALID_USER);
+            AuthenticationResponse.makeFailureResponse(response, CommonErrorCode.ACCESS_DENIED);
             return ;
         }
         AuthenticationResponse.makeFailureResponse(response, errorCode);

@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sopt.comfit.global.constants.Constants;
 import sopt.comfit.global.security.info.JwtAuthenticationToken;
@@ -59,9 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        AntPathMatcher pathMatcher = new AntPathMatcher();
         return Constants.NO_NEED_AUTH.stream()
-                .anyMatch(patter -> pathMatcher.match(patter, request.getRequestURI()));
+                .anyMatch(patter -> Constants.PATH_MATCHER.match(patter, request.getRequestURI()));
 
     }
 }

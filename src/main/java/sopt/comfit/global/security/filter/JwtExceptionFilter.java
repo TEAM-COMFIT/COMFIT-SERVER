@@ -29,7 +29,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (SecurityException e) {
             log.error("FilterException throw SecurityException Exception : {}", e.getMessage());
-            request.setAttribute("errorCode", CommonErrorCode.INVALID_USER);
+            request.setAttribute("errorCode", CommonErrorCode.ACCESS_DENIED);
             filterChain.doFilter(request, response);
         } catch (MalformedJwtException e) {
             log.error("FilterException throw MalformedJwtException Exception : {}", e.getMessage());
@@ -54,6 +54,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         } catch (UsernameNotFoundException e){
             log.error("FilterException throw UsernameNotFoundException Exception : {}", e.getMessage());
             request.setAttribute("errorCode", CommonErrorCode.AUTHENTICATION_USER_NOT_FOUND);
+            filterChain.doFilter(request, response);
         } catch (AuthenticationCredentialsNotFoundException e) {
             log.error("FilterException throw AuthenticationCredentialsNotFoundException : {}", e.getMessage());
             request.setAttribute("errorCode", CommonErrorCode.INVALID_HEADER_VALUE);
@@ -73,6 +74,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return Constants.NO_NEED_AUTH.contains(request.getRequestURI());
+        return Constants.NO_NEED_AUTH.stream()
+                .anyMatch(patter -> Constants.PATH_MATCHER.match(patter, request.getRequestURI()));
     }
 }

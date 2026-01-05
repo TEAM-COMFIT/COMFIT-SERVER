@@ -7,7 +7,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.exception.CommonErrorCode;
-import sopt.comfit.global.security.info.AuthenticationResponse;
 
 import java.io.IOException;
 
@@ -17,6 +16,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        AuthenticationResponse.makeFailureResponse(response, CommonErrorCode.INVALID_USER);
+        AuthenticationResponse.makeFailureResponse(response, CommonErrorCode.ACCESS_DENIED);
     }
 }

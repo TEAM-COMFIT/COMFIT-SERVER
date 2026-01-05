@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "FROM User u " +
             "WHERE u.id = :id")
     Optional<UserSecurityForm> findUserSecurityFormById(@Param("id") Long id);
+
+    Optional<User> findByEmail(String email);
 }
