@@ -18,7 +18,7 @@ spring:
       port: 6379
 
 jwt:
-  secret: test-secret-key-for-testing-purposes-only-1234567890
+  secret: dGVzdC1zZWNyZXQta2V5LWZvci10ZXN0aW5nLXB1cnBvc2VzLW9ubHktMTIzNDU2Nzg5MA==
   access-token:
     expiration: 3600000
   refresh-token:
