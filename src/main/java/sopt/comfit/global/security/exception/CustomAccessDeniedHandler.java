@@ -1,0 +1,22 @@
+package sopt.comfit.global.security.exception;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.stereotype.Component;
+import sopt.comfit.global.exception.CommonErrorCode;
+import sopt.comfit.global.security.info.AuthenticationResponse;
+
+import java.io.IOException;
+
+@Component
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+    @Override
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        AuthenticationResponse.makeFailureResponse(response, CommonErrorCode.INVALID_USER);
+    }
+}
