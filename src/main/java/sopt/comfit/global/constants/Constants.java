@@ -20,6 +20,7 @@ public class Constants {
             "/v3/api-docs/**",
             "/api/health",
             "/api/health-check",
-            "/api/v1/login"
+            "/api/v1/login",
+            "/actuator/**"
     );
 }
