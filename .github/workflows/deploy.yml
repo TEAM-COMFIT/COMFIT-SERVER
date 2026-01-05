@@ -1,0 +1,126 @@
+name: Blue-Green Deploy
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Create application.yml
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > src/main/resources/application-prod.yml
+
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew build -x test
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/comfit-backend:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get current upstream
+        id: check
+        run: |
+          STATUS=$(curl -k --connect-timeout 10 -o /dev/null -w "%{http_code}" "https://${{ secrets.DOMAIN }}/actuator/health" || echo "000")
+          echo "Health Status: $STATUS"
+          
+          if [ "$STATUS" = "200" ]; then
+            CURRENT=$(curl -s -k "https://${{ secrets.DOMAIN }}/api/v1/env" | jq -r '.env' || echo "blue")
+            if [ -z "$CURRENT" ] || [ "$CURRENT" = "null" ]; then
+              CURRENT="blue"
+            fi
+          else
+            CURRENT="blue"
+          fi
+          
+          if [ "$CURRENT" = "blue" ]; then
+            echo "target=green" >> $GITHUB_OUTPUT
+            echo "target_port=8081" >> $GITHUB_OUTPUT
+            echo "current_port=8080" >> $GITHUB_OUTPUT
+          else
+            echo "target=blue" >> $GITHUB_OUTPUT
+            echo "target_port=8080" >> $GITHUB_OUTPUT
+            echo "current_port=8081" >> $GITHUB_OUTPUT
+          fi
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+
+      - name: Deploy new container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+            
+            export DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }}
+            docker pull $DOCKER_IMAGE
+            docker-compose -f docker-compose-${{ steps.check.outputs.target }}.yml up -d
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            for i in {1..15}; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ steps.check.outputs.target_port }}/actuator/health)
+              echo "Attempt $i: HTTP $STATUS"
+              if [ "$STATUS" = "200" ]; then
+                echo "Health check passed!"
+                exit 0
+              fi
+              sleep 5
+            done
+            echo "Health check failed!"
+            exit 1
+
+      - name: Switch nginx upstream
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo 'set $service_url 127.0.0.1:${{ steps.check.outputs.target_port }};' | sudo tee /etc/nginx/conf.d/service-env.inc
+            sudo nginx -s reload
+
+      - name: Stop old container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker-compose -f docker-compose-${{ steps.check.outputs.current }}.yml down || true
+            docker image prune -f
