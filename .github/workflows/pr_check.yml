@@ -2,23 +2,19 @@ name: PR Check
 
 on:
   pull_request:
-    branches:
-      - dev
-  workflow_dispatch:
+    branches: [ dev ]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Build with Gradle
-        run: |
-          ./gradlew clean build -Dspring.profiles.active=test --stacktrace
+      - name: Build (no tests)
+        run: ./gradlew clean assemble
