@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sopt.comfit.global.base.BaseTimeEntity;
+import sopt.comfit.university.domain.University;
 
 @Entity
 @Getter
@@ -80,4 +81,8 @@ public class User extends BaseTimeEntity {
 
     @Column(name = "privacy_agreed", nullable = false)
     private boolean privacyAgreed;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id", nullable = false)
+    private University university;
 }
