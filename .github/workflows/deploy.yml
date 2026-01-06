@@ -2,7 +2,7 @@ name: Blue-Green Deploy
 
 on:
   push:
-    branches: [dev, feat/#3_boilerplate]
+    branches: [dev]
 
 jobs:
   build:
