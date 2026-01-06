@@ -44,47 +44,25 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get current upstream
-        id: check
-        run: |
-          STATUS=$(curl -k --connect-timeout 10 -o /dev/null -w "%{http_code}" "https://${{ secrets.DOMAIN }}/actuator/health" || echo "000")
-          echo "Health Status: $STATUS"
-          
-          if [ "$STATUS" = "200" ]; then
-            CURRENT=$(curl -s -k "https://${{ secrets.DOMAIN }}/api/v1/env" | jq -r '.env' || echo "blue")
-            if [ -z "$CURRENT" ] || [ "$CURRENT" = "null" ]; then
-              CURRENT="blue"
-            fi
-          else
-            CURRENT="blue"
-          fi
-          
-          if [ "$CURRENT" = "blue" ]; then
-            echo "target=green" >> $GITHUB_OUTPUT
-            echo "target_port=8081" >> $GITHUB_OUTPUT
-            echo "current_port=8080" >> $GITHUB_OUTPUT
-          else
-            echo "target=blue" >> $GITHUB_OUTPUT
-            echo "target_port=8080" >> $GITHUB_OUTPUT
-            echo "current_port=8081" >> $GITHUB_OUTPUT
-          fi
-          echo "current=$CURRENT" >> $GITHUB_OUTPUT
-
-      - name: Deploy new container
+      - name: Deploy target container
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            CONF=/etc/nginx/conf.d/service-url.inc
+            CURRENT_PORT=$(grep -oP '127.0.0.1:\K[0-9]+' $CONF || echo "8081")
+
+            if [ "$CURRENT_PORT" = "8080" ]; then
+              TARGET=green
+            else
+              TARGET=blue
+            fi
+
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-            
-            export DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }}
-            docker pull $DOCKER_IMAGE
-            docker-compose -f docker-compose-${{ steps.check.outputs.target }}.yml up -d
+            docker pull ${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }}
+            DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/comfit-backend:${{ github.sha }} docker-compose -f docker-compose-$TARGET.yml up -d
 
       - name: Health check
         uses: appleboy/ssh-action@v1.0.3
@@ -93,34 +71,50 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            CONF=/etc/nginx/conf.d/service-url.inc
+            CURRENT_PORT=$(grep -oP '127.0.0.1:\K[0-9]+' $CONF || echo "8081")
+
+            if [ "$CURRENT_PORT" = "8080" ]; then
+              TARGET_PORT=8081
+            else
+              TARGET_PORT=8080
+            fi
+
             for i in {1..15}; do
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ steps.check.outputs.target_port }}/actuator/health)
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:$TARGET_PORT/actuator/health)
               echo "Attempt $i: HTTP $STATUS"
               if [ "$STATUS" = "200" ]; then
-                echo "Health check passed!"
                 exit 0
               fi
               sleep 5
             done
-            echo "Health check failed!"
             exit 1
 
-      - name: Switch nginx upstream
+      - name: Switch traffic
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo 'set $service_url 127.0.0.1:${{ steps.check.outputs.target_port }};' | sudo tee /etc/nginx/conf.d/service-env.inc
-            sudo nginx -s reload
+            /home/ubuntu/switch.sh
 
       - name: Stop old container
+        if: success()
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker-compose -f docker-compose-${{ steps.check.outputs.current }}.yml down || true
+            CONF=/etc/nginx/conf.d/service-url.inc
+            CURRENT_PORT=$(grep -oP '127.0.0.1:\K[0-9]+' $CONF)
+
+            if [ "$CURRENT_PORT" = "8080" ]; then
+              OLD=green
+            else
+              OLD=blue
+            fi
+
+            docker-compose -f docker-compose-$OLD.yml down || true
             docker image prune -f
