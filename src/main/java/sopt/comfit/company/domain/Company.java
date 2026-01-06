@@ -16,7 +16,7 @@ public class Company extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 40)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "summary", nullable = false)
