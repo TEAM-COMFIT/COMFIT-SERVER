@@ -29,8 +29,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher(new PortRequestMatcher(8080))
-
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .httpBasic(AbstractHttpConfigurer::disable)
