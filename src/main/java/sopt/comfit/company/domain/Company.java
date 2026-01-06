@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sopt.comfit.global.base.BaseTimeEntity;
-import sopt.comfit.user.domain.EIndustry;
+import sopt.comfit.global.enums.EIndustry;
 
 @Entity
 @Getter

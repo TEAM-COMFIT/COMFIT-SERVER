@@ -1,4 +1,4 @@
-package sopt.comfit.user.domain;
+package sopt.comfit.global.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
