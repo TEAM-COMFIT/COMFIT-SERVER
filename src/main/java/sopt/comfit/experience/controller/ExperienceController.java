@@ -1,11 +1,9 @@
 package sopt.comfit.experience.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
@@ -20,45 +18,39 @@ import sopt.comfit.global.dto.PageDto;
 @RestController
 @RequestMapping("/api/v1/experiences")
 @RequiredArgsConstructor
-public class ExperienceController {
+public class ExperienceController implements ExperienceSwagger {
 
     private final ExperienceService experienceService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @SecurityRequirement(name = "JWT")
+    @Override
     public Long createExperience(@LoginUser Long userId,
                                   @Valid @RequestBody ExperienceRequestDto request){
 
         return experienceService.createExperience(CreateExperienceCommandDto.of(userId, request));
     }
 
-    @GetMapping
-    @SecurityRequirement(name = "JWT")
+    @Override
     public PageDto<GetSummaryExperienceResponseDto> getSummaryExperienceList(@LoginUser Long userId,
-                                                                             @RequestParam(required = false) EType type){
-        Pageable pageable = PageRequest.of(0, 6);
+                                                                             @RequestParam(required = false) EType type,
+                                                                             @RequestParam(defaultValue = "0") int page){
+        Pageable pageable = PageRequest.of(page, 6);
         return experienceService.getSummaryExperienceList(userId, type, pageable);
     }
 
-    @GetMapping("/{experienceId}")
-    @SecurityRequirement(name="JWT")
+    @Override
     public GetExperienceResponseDto getExperience( @LoginUser Long userId,
                                                    @PathVariable Long experienceId){
         return experienceService.getExperience(userId, experienceId);
     }
 
-    @PatchMapping("/{experienceId}")
-    @SecurityRequirement(name = "JWT")
+    @Override
     public Long updateExperience(@LoginUser Long userId,
                                  @PathVariable Long experienceId,
                                  @Valid @RequestBody ExperienceRequestDto request){
         return experienceService.updateExperience(UpdateExperienceCommandDto.of(userId, experienceId, request));
     }
 
-    @DeleteMapping("/{experienceId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @SecurityRequirement(name = "JWT")
+    @Override
     public void deleteExperience(@LoginUser Long userId,
                                  @PathVariable Long experienceId){
         experienceService.deleteExperience(userId, experienceId);
