@@ -55,4 +55,12 @@ public class ExperienceController {
                                  @Valid @RequestBody ExperienceRequestDto request){
         return experienceService.updateExperience(UpdateExperienceCommandDto.of(userId, experienceId, request));
     }
+
+    @DeleteMapping("/{experienceId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "JWT")
+    public void deleteExperience(@LoginUser Long userId,
+                                 @PathVariable Long experienceId){
+        experienceService.deleteExperience(userId, experienceId);
+    }
 }

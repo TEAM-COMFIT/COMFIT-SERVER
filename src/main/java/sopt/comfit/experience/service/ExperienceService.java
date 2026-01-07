@@ -92,6 +92,14 @@ public class ExperienceService {
         return experience.getId();
     }
 
+    @Transactional
+    public void deleteExperience(Long userId, Long experienceId) {
+        Experience experience = experienceRepository.findByIdAndUserId(experienceId, userId)
+                .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+        experienceRepository.delete(experience);
+    }
+
     private void cancelExistingDefault(Long userId) {
         experienceRepository.findByUserIdAndIsDefaultTrue(userId)
                 .ifPresent(Experience::cancelDefault);
