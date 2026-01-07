@@ -1,11 +1,19 @@
 package sopt.comfit.experience.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.experience.domain.ExperienceRepository;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
+import sopt.comfit.experience.dto.response.GetExperienceResponseDto;
+import sopt.comfit.experience.dto.response.GetSummaryExperienceResponseDto;
+import sopt.comfit.experience.exception.ExperienceErrorCode;
+import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.user.domain.User;
 import sopt.comfit.user.domain.UserRepository;
@@ -40,6 +48,24 @@ public class ExperienceService {
                 user));
 
         return  experience.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public PageDto<GetSummaryExperienceResponseDto> getSummaryExperienceList(Long userId, EType type, Pageable pageable) {
+
+        Page<Experience> experiences = (type == null)
+                ? experienceRepository.findByUserId(userId, pageable)
+                : experienceRepository.findByUserIdAndType(userId, type, pageable);
+
+        return PageDto.from(experiences.map(GetSummaryExperienceResponseDto::from));
+    }
+
+    @Transactional(readOnly = true)
+    public GetExperienceResponseDto getExperience(Long userId, Long experienceId) {
+        Experience experience = experienceRepository.findByIdAndUserId(experienceId, userId)
+                .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+        return GetExperienceResponseDto.from(experience);
     }
 
     private void cancelExistingDefault(Long userId) {

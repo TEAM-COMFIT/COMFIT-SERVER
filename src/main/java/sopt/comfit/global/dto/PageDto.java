@@ -19,7 +19,7 @@ public record PageDto<T>(
     public static <T> PageDto<T> from(Page<T> page) {
         return new PageDto<>(
                 page.getContent(),
-                page.getNumber(),
+                page.getNumber() + 1,
                 page.getTotalPages(),
                 page.getTotalElements(),
                 page.hasNext()
