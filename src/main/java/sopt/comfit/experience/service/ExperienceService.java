@@ -10,6 +10,7 @@ import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.experience.domain.ExperienceRepository;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
+import sopt.comfit.experience.dto.command.UpdateExperienceCommandDto;
 import sopt.comfit.experience.dto.response.GetExperienceResponseDto;
 import sopt.comfit.experience.dto.response.GetSummaryExperienceResponseDto;
 import sopt.comfit.experience.exception.ExperienceErrorCode;
@@ -66,6 +67,29 @@ public class ExperienceService {
                 .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
 
         return GetExperienceResponseDto.from(experience);
+    }
+
+    @Transactional
+    public Long updateExperience(UpdateExperienceCommandDto command){
+        Experience experience = experienceRepository.findByIdAndUserId(command.experienceId(), command.userId())
+                .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+        if(command.isDefault() && !experience.isDefault()) {
+            cancelExistingDefault(command.userId());
+        }
+
+        experience.update(
+                command.title(),
+                command.situation(),
+                command.task(),
+                command.action(),
+                command.result(),
+                command.type(),
+                command.startAt(),
+                command.endAt(),
+                command.isDefault());
+
+        return experience.getId();
     }
 
     private void cancelExistingDefault(Long userId) {

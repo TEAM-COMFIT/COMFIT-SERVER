@@ -6,7 +6,7 @@ import sopt.comfit.experience.domain.EType;
 
 import java.time.LocalDate;
 
-public record CreateExperienceRequestDto (
+public record ExperienceRequestDto(
         @NotBlank
         @Size(min = 2, max = 40, message = "title은 2자 이상 20자 이하여야 합니다")
         @Schema(example = "인스타그램 마케팅 캠페인 기획 및 실행", requiredMode = Schema.RequiredMode.REQUIRED)

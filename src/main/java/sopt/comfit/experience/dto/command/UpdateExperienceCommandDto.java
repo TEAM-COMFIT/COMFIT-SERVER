@@ -5,8 +5,10 @@ import sopt.comfit.experience.dto.request.ExperienceRequestDto;
 
 import java.time.LocalDate;
 
-public record CreateExperienceCommandDto(
+public record UpdateExperienceCommandDto(
         Long userId,
+
+        Long experienceId,
 
         String title,
 
@@ -26,9 +28,10 @@ public record CreateExperienceCommandDto(
 
         boolean isDefault
 ) {
-    public static CreateExperienceCommandDto of(Long userId, ExperienceRequestDto request){
-        return new CreateExperienceCommandDto(
+    public static UpdateExperienceCommandDto of(Long userId, Long experienceId, ExperienceRequestDto request){
+        return new UpdateExperienceCommandDto(
                 userId,
+                experienceId,
                 request.title(),
                 request.type(),
                 request.startAt(),
@@ -37,6 +40,7 @@ public record CreateExperienceCommandDto(
                 request.task(),
                 request.action(),
                 request.result(),
-                request.isDefault());
+                request.isDefault()
+        );
     }
 }

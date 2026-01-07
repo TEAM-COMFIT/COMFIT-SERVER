@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
-import sopt.comfit.experience.dto.request.CreateExperienceRequestDto;
+import sopt.comfit.experience.dto.command.UpdateExperienceCommandDto;
+import sopt.comfit.experience.dto.request.ExperienceRequestDto;
 import sopt.comfit.experience.dto.response.GetExperienceResponseDto;
 import sopt.comfit.experience.dto.response.GetSummaryExperienceResponseDto;
 import sopt.comfit.experience.service.ExperienceService;
@@ -27,7 +28,7 @@ public class ExperienceController {
     @ResponseStatus(HttpStatus.CREATED)
     @SecurityRequirement(name = "JWT")
     public Long createExperience(@LoginUser Long userId,
-                                  @Valid @RequestBody CreateExperienceRequestDto request){
+                                  @Valid @RequestBody ExperienceRequestDto request){
 
         return experienceService.createExperience(CreateExperienceCommandDto.of(userId, request));
     }
@@ -45,5 +46,13 @@ public class ExperienceController {
     public GetExperienceResponseDto getExperience( @LoginUser Long userId,
                                                    @PathVariable Long experienceId){
         return experienceService.getExperience(userId, experienceId);
+    }
+
+    @PatchMapping("/{experienceId}")
+    @SecurityRequirement(name = "JWT")
+    public Long updateExperience(@LoginUser Long userId,
+                                 @PathVariable Long experienceId,
+                                 @Valid @RequestBody ExperienceRequestDto request){
+        return experienceService.updateExperience(UpdateExperienceCommandDto.of(userId, experienceId, request));
     }
 }

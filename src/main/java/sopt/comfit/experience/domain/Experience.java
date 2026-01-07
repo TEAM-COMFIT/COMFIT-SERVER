@@ -116,4 +116,28 @@ public class Experience extends BaseTimeEntity {
             throw BaseException.type(ExperienceErrorCode.NOT_ALLOWED_FUTURE_DATE);
         }
     }
+
+    public void update(String title,
+                       String situation,
+                       String task,
+                       String action,
+                       String result,
+                       EType type,
+                       LocalDate startAt,
+                       LocalDate endAt,
+                       boolean isDefault
+                       ){
+        validateDate(startAt, endAt);
+        this.title = title;
+        this.situation = situation;
+        this.task = task;
+        this.action = action;
+        this.result = result;
+        this.type = type;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.isDefault = isDefault;
+    }
+
+
 }
