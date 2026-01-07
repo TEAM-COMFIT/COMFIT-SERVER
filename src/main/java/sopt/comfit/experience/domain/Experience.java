@@ -2,9 +2,12 @@ package sopt.comfit.experience.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sopt.comfit.experience.exception.ExperienceErrorCode;
 import sopt.comfit.global.base.BaseTimeEntity;
+import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.user.domain.User;
 
 import java.time.LocalDate;
@@ -49,4 +52,68 @@ public class Experience extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Experience(final String title,
+                       final String situation,
+                       final String task,
+                       final String action,
+                       final String result,
+                       final LocalDate startAt,
+                       final LocalDate endAt,
+                       final EType type,
+                       final boolean isDefault,
+                       final User user) {
+        this.title = title;
+        this.situation = situation;
+        this.task = task;
+        this.action = action;
+        this.result = result;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.type = type;
+        this.isDefault = isDefault;
+        this.user = user;
+    }
+
+    public static Experience create(final String title,
+                                    final String situation,
+                                    final String task,
+                                    final String action,
+                                    final String result,
+                                    final LocalDate startAt,
+                                    final LocalDate endAt,
+                                    final EType type,
+                                    final boolean isDefault,
+                                    final User user){
+        validateDate(startAt, endAt);
+        return Experience.builder()
+                .title(title)
+                .situation(situation)
+                .task(task)
+                .action(action)
+                .result(result)
+                .startAt(startAt)
+                .endAt(endAt)
+                .type(type)
+                .isDefault(isDefault)
+                .user(user)
+                .build();
+    }
+
+    //update 메서드
+    public void cancelDefault() {
+        this.isDefault = false;
+    }
+
+    //validate 메서드
+    public static void validateDate(LocalDate startAt, LocalDate endAt) {
+        if (endAt.isBefore(startAt)) {
+            throw BaseException.type(ExperienceErrorCode.END_DATE_BEFORE_START_DATE);
+        }
+
+        if (startAt.isAfter(LocalDate.now()) || endAt.isAfter(LocalDate.now())) {
+            throw BaseException.type(ExperienceErrorCode.NOT_ALLOWED_FUTURE_DATE);
+        }
+    }
 }

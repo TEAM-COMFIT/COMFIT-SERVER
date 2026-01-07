@@ -10,6 +10,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import sopt.comfit.global.dto.CommonApiResponse;
+import sopt.comfit.global.dto.CustomErrorResponse;
 
 @RestControllerAdvice(basePackages = "sopt.comfit")
 public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
@@ -27,6 +28,10 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
+
+        if (body instanceof CommonApiResponse || body instanceof CustomErrorResponse) {
+            return body;
+        }
 
         return CommonApiResponse.success(body);
     }
