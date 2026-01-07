@@ -1,8 +1,8 @@
 package sopt.comfit.experience.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,7 @@ import sopt.comfit.user.domain.UserRepository;
 import sopt.comfit.user.exception.UserErrorCode;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ExperienceService {
 
@@ -29,6 +30,8 @@ public class ExperienceService {
 
     @Transactional
     public Long createExperience(CreateExperienceCommandDto command){
+        log.info("경험 생성 시작 - userId: {}", command.userId());
+
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
 
@@ -48,6 +51,7 @@ public class ExperienceService {
                 command.isDefault(),
                 user));
 
+        log.info("경험 생성 완료 - experienceId: {}", experience.getId());
         return  experience.getId();
     }
 
@@ -78,6 +82,7 @@ public class ExperienceService {
             cancelExistingDefault(command.userId());
         }
 
+        log.info("경험 업데이트 시작: experienceId: {}", experience.getId());
         experience.update(
                 command.title(),
                 command.situation(),
@@ -89,6 +94,7 @@ public class ExperienceService {
                 command.endAt(),
                 command.isDefault());
 
+        log.info("경험 업데이트 완료: experienceId: {}", experience.getId());
         return experience.getId();
     }
 
@@ -98,6 +104,7 @@ public class ExperienceService {
                 .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
 
         experienceRepository.delete(experience);
+        log.info("경험 삭제 완료 - userId: {}, experienceId: {}", userId, experienceId);
     }
 
     private void cancelExistingDefault(Long userId) {

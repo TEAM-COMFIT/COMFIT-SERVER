@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sopt.comfit.experience.exception.ExperienceErrorCode;
 import sopt.comfit.global.base.BaseTimeEntity;
 import sopt.comfit.global.exception.BaseException;
@@ -12,6 +13,7 @@ import sopt.comfit.user.domain.User;
 
 import java.time.LocalDate;
 
+@Slf4j
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -109,10 +111,12 @@ public class Experience extends BaseTimeEntity {
     //validate 메서드
     public static void validateDate(LocalDate startAt, LocalDate endAt) {
         if (endAt.isBefore(startAt)) {
+            log.warn("종료일시가 시작일시보다 빠를 수 없습니다. startAt: {}, endAt: {}", startAt, endAt);
             throw BaseException.type(ExperienceErrorCode.END_DATE_BEFORE_START_DATE);
         }
 
         if (startAt.isAfter(LocalDate.now()) || endAt.isAfter(LocalDate.now())) {
+            log.warn("종료일시 및 시작일시는 미래 날짜가 될 수 없습니다. startAt: {}, endAt: {}", startAt, endAt);
             throw BaseException.type(ExperienceErrorCode.NOT_ALLOWED_FUTURE_DATE);
         }
     }
