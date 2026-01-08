@@ -5,16 +5,20 @@ import sopt.comfit.user.domain.UserCompany;
 import java.time.LocalDate;
 
 public record GetBookmarkCompany(
-    Long companyId,
 
-    String name,
+        Long id,
 
-    LocalDate createdAt,
+        Long companyId,
 
-    boolean isConnected
+        String name,
+
+        LocalDate createdAt,
+
+        boolean isConnected
 ) {
     public static GetBookmarkCompany from(UserCompany userCompany){
         return new GetBookmarkCompany(
+                userCompany.getId(),
                 userCompany.getCompany().getId(),
                 userCompany.getCompany().getName(),
                 userCompany.getCreatedAt().toLocalDate(),
