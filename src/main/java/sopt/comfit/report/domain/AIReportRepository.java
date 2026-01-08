@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface AIReportRepository extends JpaRepository<AIReport, Long> {
     Page<AIReport> findByExperienceUserId(Long experienceUserId, Pageable pageable);
     @Query("""
@@ -20,4 +22,6 @@ public interface AIReportRepository extends JpaRepository<AIReport, Long> {
             @Param("keyword") String keyword,
             Pageable pageable
     );
+
+    Optional<AIReport> findByExperienceUserIdAndId(Long userId, Long id);
 }

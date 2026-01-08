@@ -1,6 +1,7 @@
 package sopt.comfit.report.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,5 +35,12 @@ public class AIReportController {
                                                               @RequestParam(required = false) String keyword){
         Pageable pageable = PageRequest.of(page, 4);
         return aiReportService.getReportList(userId, pageable, keyword);
+    }
+
+    @GetMapping("/{reportId}")
+    @SecurityRequirement(name = "JWT")
+    public AIReportResponseDto getReport(@LoginUser Long userId,
+                                         @PathVariable Long reportId){
+        return aiReportService.getReport(userId, reportId);
     }
 }

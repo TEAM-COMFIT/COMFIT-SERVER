@@ -75,6 +75,14 @@ public class AIReportService {
         return PageDto.from(reports.map(GetReportSummaryResponseDto::from));
     }
 
+    @Transactional(readOnly = true)
+    public AIReportResponseDto getReport(Long userId, Long reportId) {
+        AIReport aiReport = aIReportRepository.findByExperienceUserIdAndId(userId, reportId)
+                .orElseThrow(() -> BaseException.type(AIReportErrorCode.AI_REPORT_NOT_FOUND));
+
+        return AIReportResponseDto.from(aiReport);
+    }
+
     private AIReport parseAndSave(String content, Experience experience, Company company) {
         try {
             JsonNode json = objectMapper.readTree(content);
