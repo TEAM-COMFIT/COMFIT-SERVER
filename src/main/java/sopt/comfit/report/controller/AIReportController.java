@@ -1,7 +1,6 @@
 package sopt.comfit.report.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.Getter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,19 +16,17 @@ import sopt.comfit.report.service.AIReportService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/ai-reports")
-public class AIReportController {
+public class AIReportController implements AIReportSwagger {
 
     private final AIReportService aiReportService;
 
-    @PostMapping
-    @SecurityRequirement(name = "JWT")
+    @Override
     public AIReportResponseDto matchExperience(@LoginUser Long userId,
-                                               @RequestBody MatchExperienceRequestDto requestDto){
+                                               @Valid @RequestBody MatchExperienceRequestDto requestDto){
         return aiReportService.matchExperience(MatchExperienceCommandDto.of(userId, requestDto));
     }
 
-    @GetMapping
-    @SecurityRequirement(name = "JWT")
+    @Override
     public PageDto<GetReportSummaryResponseDto> getReportList(@LoginUser Long userId,
                                                               @RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(required = false) String keyword){
@@ -37,8 +34,7 @@ public class AIReportController {
         return aiReportService.getReportList(userId, pageable, keyword);
     }
 
-    @GetMapping("/{reportId}")
-    @SecurityRequirement(name = "JWT")
+    @Override
     public AIReportResponseDto getReport(@LoginUser Long userId,
                                          @PathVariable Long reportId){
         return aiReportService.getReport(userId, reportId);
