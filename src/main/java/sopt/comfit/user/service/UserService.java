@@ -1,6 +1,7 @@
 package sopt.comfit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import sopt.comfit.user.dto.response.GetMeResponseDto;
 import sopt.comfit.user.exception.UserCompanyErrorCode;
 import sopt.comfit.user.exception.UserErrorCode;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -41,6 +43,8 @@ public class UserService {
 
     @Transactional
     public Long addBookmark(Long userId, Long companyId) {
+
+        log.info("북마크 추가 userId:{} companyId:{}", userId, companyId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
         Company company = companyRepository.findById(companyId)
@@ -48,12 +52,12 @@ public class UserService {
 
         boolean isConnected = aIReportRepository.existsByCompanyIdAndUserId(companyId, userId);
         UserCompany userCompany = userCompanyRepository.save(UserCompany.create(user, company, isConnected));
-
         return userCompany.getId();
     }
 
     @Transactional
     public void removeBookmark(Long userId, Long companyId) {
+        log.info("북마크 삭제 userId:{} companyId:{}", userId, companyId);
         UserCompany userCompany = userCompanyRepository.findByCompanyIdAndUserId(companyId, userId)
                 .orElseThrow(() -> BaseException.type(UserCompanyErrorCode.USER_COMPANY_NOT_FOUND));
 
@@ -67,7 +71,10 @@ public class UserService {
             case LATEST -> userCompanyRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
             case OLDEST -> userCompanyRepository.findByUserIdOrderByCreatedAtAsc(userId, pageable);
             case NAME -> userCompanyRepository.findByUserIdOrderByCompanyName(userId, pageable);
-            default -> throw BaseException.type(CommonErrorCode.NOT_SUPPORTED_SORT_TYPE);
+            default -> {
+                log.warn("잘못된 정렬 타입 값입니다 type : {}", sort);
+                throw BaseException.type(CommonErrorCode.NOT_SUPPORTED_SORT_TYPE);
+            }
         };
 
         return PageDto.from(page.map(GetBookmarkCompany::from));
