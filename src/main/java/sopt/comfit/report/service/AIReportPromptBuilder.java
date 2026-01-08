@@ -1,5 +1,6 @@
 package sopt.comfit.report.service;
 
+import lombok.extern.slf4j.Slf4j;
 import sopt.comfit.company.domain.Company;
 import sopt.comfit.company.domain.CompanyIssue;
 import sopt.comfit.experience.domain.Experience;
@@ -7,9 +8,11 @@ import sopt.comfit.experience.domain.Experience;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class AIReportPromptBuilder {
 
     public static String build(Company company, Experience experience, List<CompanyIssue> issues) {
+        log.info("프롬프트 빌드 시작 companyId: {}, experienceId: {}", company.getId(), experience.getId());
         return """
             당신은 취업 컨설팅 전문가입니다.
             사용자의 경험과 지원 기업 정보를 분석하여 자기소개서 작성 가이드를 제공합니다.

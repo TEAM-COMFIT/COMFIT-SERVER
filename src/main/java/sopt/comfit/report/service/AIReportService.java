@@ -53,11 +53,22 @@ public class AIReportService {
 
         List<CompanyIssue> companyIssueList = companyIssueRepository.findByCompanyId(command.companyId());
 
+        log.info("OpenAI API 호출 시작 - companyId: {}, experienceId: {}", company.getId(), experience.getId());
+        long startTime = System.currentTimeMillis();
+
         CreateReportAiResponseDto response = openAiClient
                 .createReport(CreateReportAiRequestDto
                         .from(AIReportPromptBuilder.build(company, experience, companyIssueList)));
 
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("OpenAI API 호출 완료 - companyId: {}, experienceId: {}, duration: {}ms, responseLength: {}",
+                company.getId(), experience.getId(), duration, response.getContent().length());
+
+
         AIReport aiReport = parseAndSave(response.getContent(), experience, company);
+
+        log.info("AI 분석 완료 - userId: {}, reportId: {}, companyId: {}, experienceId: {}",
+                command.userId(), aiReport.getId(), company.getId(), experience.getId());
 
         return AIReportResponseDto.from(aiReport);
     }
@@ -84,8 +95,23 @@ public class AIReportService {
     }
 
     private AIReport parseAndSave(String content, Experience experience, Company company) {
+        log.info("응답 파싱 시작 - companyId: {}, experienceId: {}, contentLength: {}",
+                company.getId(), experience.getId(), content.length());
         try {
             JsonNode json = objectMapper.readTree(content);
+
+            if (json.get("perspectives") == null || json.get("density") == null ||
+                    json.get("appealPoint") == null || json.get("suggestion") == null ||
+                    json.get("guidance") == null) {
+                log.error("응답 JSON 필수 필드 누락 - companyId: {}, experienceId: {}, json: {}",
+                        company.getId(), experience.getId(), content);
+                throw BaseException.type(AIReportErrorCode.AI_RESPONSE_PARSE_FAILED);
+            }
+
+            log.debug("JSON 파싱 성공 - perspectives: {}, density: {}, appealPoint: {}",
+                    json.get("perspectives").size(),
+                    json.get("density").size(),
+                    json.get("appealPoint").size());
 
             AIReport report = AIReport.create(
                     json.get("perspectives").toString(),
@@ -97,8 +123,15 @@ public class AIReportService {
                     company
             );
 
-            return aIReportRepository.save(report);
+            AIReport savedReport = aIReportRepository.save(report);
+            log.info("리포트 저장 완료 - reportId: {}, companyId: {}, experienceId: {}",
+                    savedReport.getId(), company.getId(), experience.getId());
+
+            return savedReport;
+
         } catch (JsonProcessingException e) {
+            log.error("응답 파싱 실패 - companyId: {}, experienceId: {}, error: {}, content: {}",
+                    company.getId(), experience.getId(), e.getMessage(), content, e);
             throw BaseException.type(AIReportErrorCode.AI_RESPONSE_PARSE_FAILED);
         }
     }
