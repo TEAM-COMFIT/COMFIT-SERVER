@@ -1,7 +1,9 @@
 package sopt.comfit.global.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import sopt.comfit.global.exception.ErrorCode;
 
+@JsonPropertyOrder({"status", "prefix", "message"})
 public record CustomErrorResponse(
 
         int status,
