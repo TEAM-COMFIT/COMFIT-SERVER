@@ -2,9 +2,16 @@ package sopt.comfit.user.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import sopt.comfit.global.annotation.LoginUser;
+import sopt.comfit.global.dto.PageDto;
+import sopt.comfit.global.enums.ESort;
+import sopt.comfit.user.dto.response.GetBookmarkCompany;
 import sopt.comfit.user.dto.response.GetMeResponseDto;
 import sopt.comfit.user.service.UserService;
 
@@ -35,6 +42,15 @@ public class UserController {
     public void removeBookmark(@LoginUser Long userId,
                                @PathVariable Long companyId) {
         userService.removeBookmark(userId, companyId);
+    }
+
+    @GetMapping("/companies")
+    @SecurityRequirement(name = "JWT")
+    public PageDto<GetBookmarkCompany> getBookmarkCompany(@LoginUser Long userId,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "LATEST") ESort sort){
+        Pageable pageable = PageRequest.of(page,  6);
+        return userService.getBookmarkCompany(userId, sort, pageable);
     }
 
 }

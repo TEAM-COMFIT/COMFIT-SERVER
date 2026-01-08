@@ -1,17 +1,23 @@
 package sopt.comfit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.company.domain.Company;
 import sopt.comfit.company.domain.CompanyRepository;
 import sopt.comfit.company.exception.CompanyErrorCode;
+import sopt.comfit.global.dto.PageDto;
+import sopt.comfit.global.enums.ESort;
 import sopt.comfit.global.exception.BaseException;
+import sopt.comfit.global.exception.CommonErrorCode;
 import sopt.comfit.report.domain.AIReportRepository;
 import sopt.comfit.user.domain.User;
 import sopt.comfit.user.domain.UserCompany;
 import sopt.comfit.user.domain.UserCompanyRepository;
 import sopt.comfit.user.domain.UserRepository;
+import sopt.comfit.user.dto.response.GetBookmarkCompany;
 import sopt.comfit.user.dto.response.GetMeResponseDto;
 import sopt.comfit.user.exception.UserCompanyErrorCode;
 import sopt.comfit.user.exception.UserErrorCode;
@@ -52,5 +58,18 @@ public class UserService {
                 .orElseThrow(() -> BaseException.type(UserCompanyErrorCode.USER_COMPANY_NOT_FOUND));
 
         userCompanyRepository.delete(userCompany);
+    }
+
+    @Transactional(readOnly = true)
+    public PageDto<GetBookmarkCompany> getBookmarkCompany (Long userId, ESort sort, Pageable pageable) {
+
+        Page<UserCompany> page = switch (sort) {
+            case LATEST -> userCompanyRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+            case OLDEST -> userCompanyRepository.findByUserIdOrderByCreatedAtAsc(userId, pageable);
+            case NAME -> userCompanyRepository.findByUserIdOrderByCompanyName(userId, pageable);
+            default -> throw BaseException.type(CommonErrorCode.NOT_SUPPORTED_SORT_TYPE);
+        };
+
+        return PageDto.from(page.map(GetBookmarkCompany::from));
     }
 }
