@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.company.domain.Company;
@@ -15,11 +17,13 @@ import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.experience.domain.ExperienceRepository;
 import sopt.comfit.experience.exception.ExperienceErrorCode;
+import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.report.domain.AIReport;
 import sopt.comfit.report.domain.AIReportRepository;
 import sopt.comfit.report.dto.command.MatchExperienceCommandDto;
 import sopt.comfit.report.dto.response.AIReportResponseDto;
+import sopt.comfit.report.dto.response.GetReportSummaryResponseDto;
 import sopt.comfit.report.exception.AIReportErrorCode;
 import sopt.comfit.report.infra.OpenAiClient;
 import sopt.comfit.report.infra.dto.CreateReportAiRequestDto;
@@ -56,6 +60,19 @@ public class AIReportService {
         AIReport aiReport = parseAndSave(response.getContent(), experience, company);
 
         return AIReportResponseDto.from(aiReport);
+    }
+
+    @Transactional(readOnly = true)
+    public PageDto<GetReportSummaryResponseDto> getReportList(Long userId, Pageable pageable, String keyword) {
+        Page<AIReport> reports;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            reports = aIReportRepository.findByExperienceUserIdAndKeyword(userId, keyword, pageable);
+        } else {
+            reports = aIReportRepository.findByExperienceUserId(userId, pageable);
+        }
+
+        return PageDto.from(reports.map(GetReportSummaryResponseDto::from));
     }
 
     private AIReport parseAndSave(String content, Experience experience, Company company) {
