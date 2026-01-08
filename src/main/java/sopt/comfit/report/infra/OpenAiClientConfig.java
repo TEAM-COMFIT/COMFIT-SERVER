@@ -11,9 +11,7 @@ public class OpenAiClientConfig {
 
     @Bean
     public RequestInterceptor authInterceptor() {
-        return template -> {
-            template.header("Authorization", "Bearer " + apiKey);
-            template.header("Content-Type", "application/json");
-        };
+        return template ->
+        {template.header("Authorization", "Bearer " + apiKey);};
     }
 }

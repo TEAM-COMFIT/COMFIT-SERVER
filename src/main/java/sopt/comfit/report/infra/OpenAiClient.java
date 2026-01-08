@@ -8,7 +8,7 @@ import sopt.comfit.report.infra.dto.CreateReportAiResponseDto;
 
 @FeignClient(
         name = "openai-client",
-        url = "${openai.api.url}",
+        url = "https://api.openai.com",
         configuration = OpenAiClientConfig.class
 )
 public interface OpenAiClient {

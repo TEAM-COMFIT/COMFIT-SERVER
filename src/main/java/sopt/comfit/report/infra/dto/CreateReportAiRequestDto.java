@@ -13,7 +13,7 @@ public record CreateReportAiRequestDto(
 
     public static CreateReportAiRequestDto from(String prompt) {
         return new CreateReportAiRequestDto(
-                "gpt-4o",
+                "gpt-4o-mini",
                 List.of(new Message("user", prompt))
         );
     }
