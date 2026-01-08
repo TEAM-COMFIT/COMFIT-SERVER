@@ -2,6 +2,7 @@ package sopt.comfit.user.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sopt.comfit.company.domain.Company;
@@ -26,4 +27,19 @@ public class UserCompany extends BaseTimeEntity {
 
     @Column(name = "is_connected", nullable = false)
     private boolean isConnected;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private UserCompany(final User user,
+                        final Company company,
+                        final boolean isConnected) {
+        this.user = user;
+        this.company = company;
+        this.isConnected = isConnected;
+    }
+
+    public static UserCompany create(final User user,
+                                     final Company company,
+                                     final boolean isConnected) {
+        return new UserCompany(user, company, isConnected);
+    }
 }

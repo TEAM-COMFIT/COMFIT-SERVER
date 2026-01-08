@@ -2,9 +2,8 @@ package sopt.comfit.user.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.user.dto.response.GetMeResponseDto;
 import sopt.comfit.user.service.UserService;
@@ -21,4 +20,21 @@ public class UserController {
     public GetMeResponseDto getMe (@LoginUser Long userId){
         return userService.getMe(userId);
     }
+
+    @PostMapping("/companies/{companyId}")
+    @SecurityRequirement(name = "JWT")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long addBookmark(@LoginUser Long userId,
+                            @PathVariable Long companyId){
+        return userService.addBookmark(userId, companyId);
+    }
+
+    @DeleteMapping("/companies/{companyId}")
+    @SecurityRequirement(name = "JWT")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeBookmark(@LoginUser Long userId,
+                               @PathVariable Long companyId) {
+        userService.removeBookmark(userId, companyId);
+    }
+
 }
