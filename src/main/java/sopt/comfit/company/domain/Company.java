@@ -43,9 +43,9 @@ public class Company extends BaseTimeEntity {
     @Column(name = "logo")
     private String logo;
 
-    @Column(name = "company_url", nullable = false)
+    @Column(name = "company_url", nullable = false, columnDefinition = "TEXT")
     private String companyUrl;
 
-    @Column(name= "recruit_url")
+    @Column(name= "recruit_url", columnDefinition = "TEXT")
     private String recruitUrl;
 }
