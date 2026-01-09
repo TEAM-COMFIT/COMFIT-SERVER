@@ -40,6 +40,10 @@ public class UserCompany extends BaseTimeEntity {
     public static UserCompany create(final User user,
                                      final Company company,
                                      final boolean isConnected) {
-        return new UserCompany(user, company, isConnected);
+        return UserCompany.builder()
+                .user(user)
+                .company(company)
+                .isConnected(isConnected)
+                .build();
     }
 }

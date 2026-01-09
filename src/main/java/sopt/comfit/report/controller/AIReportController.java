@@ -28,9 +28,9 @@ public class AIReportController implements AIReportSwagger {
 
     @Override
     public PageDto<GetReportSummaryResponseDto> getReportList(@LoginUser Long userId,
-                                                              @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "1") int page,
                                                               @RequestParam(required = false) String keyword){
-        Pageable pageable = PageRequest.of(page, 4);
+        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), 4);
         return aiReportService.getReportList(userId, pageable, keyword);
     }
 

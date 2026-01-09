@@ -40,9 +40,9 @@ public class UserController implements UserSwagger {
 
     @Override
     public PageDto<GetBookmarkCompany> getBookmarkCompany(@LoginUser Long userId,
-                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "1") int page,
                                                           @RequestParam(defaultValue = "LATEST") ESort sort){
-        Pageable pageable = PageRequest.of(page,  6);
+        Pageable pageable = PageRequest.of(Math.max(page - 1 , 0),  6);
         return userService.getBookmarkCompany(userId, sort, pageable);
     }
 

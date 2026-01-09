@@ -10,9 +10,13 @@ public record PageDto<T>(
 
         int currentPage,
 
+        int currentSize,
+
         int totalPage,
 
         long totalElements,
+
+        boolean hasPrevious,
 
         boolean hasNext
 ) {
@@ -20,8 +24,10 @@ public record PageDto<T>(
         return new PageDto<>(
                 page.getContent(),
                 page.getNumber() + 1,
+                page.getNumberOfElements(),
                 page.getTotalPages(),
                 page.getTotalElements(),
+                page.hasPrevious(),
                 page.hasNext()
         );
     }

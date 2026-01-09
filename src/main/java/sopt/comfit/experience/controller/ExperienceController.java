@@ -32,8 +32,8 @@ public class ExperienceController implements ExperienceSwagger {
     @Override
     public PageDto<GetSummaryExperienceResponseDto> getSummaryExperienceList(@LoginUser Long userId,
                                                                              @RequestParam(required = false) EType type,
-                                                                             @RequestParam(defaultValue = "0") int page){
-        Pageable pageable = PageRequest.of(page, 6);
+                                                                             @RequestParam(defaultValue = "1") int page){
+        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), 6);
         return experienceService.getSummaryExperienceList(userId, type, pageable);
     }
 
