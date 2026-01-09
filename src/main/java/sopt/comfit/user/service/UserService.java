@@ -50,7 +50,7 @@ public class UserService {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
 
-        boolean isConnected = aIReportRepository.existsByCompanyIdAndUserId(companyId, userId);
+        boolean isConnected = aIReportRepository.existsByCompanyIdAndExperienceUserId(companyId, userId);
         UserCompany userCompany = userCompanyRepository.save(UserCompany.create(user, company, isConnected));
         return userCompany.getId();
     }
