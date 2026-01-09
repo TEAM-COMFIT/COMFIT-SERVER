@@ -16,6 +16,7 @@ import sopt.comfit.company.domain.CompanyRepository;
 import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.experience.domain.ExperienceRepository;
+import sopt.comfit.experience.dto.response.GetReportExperienceResponseDto;
 import sopt.comfit.experience.exception.ExperienceErrorCode;
 import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.global.exception.BaseException;
@@ -92,6 +93,14 @@ public class AIReportService {
                 .orElseThrow(() -> BaseException.type(AIReportErrorCode.AI_REPORT_NOT_FOUND));
 
         return AIReportResponseDto.from(aiReport);
+    }
+
+    @Transactional(readOnly = true)
+    public GetReportExperienceResponseDto getReportExperience(Long userId) {
+        List<Experience> experiences = experienceRepository.findByUserId(userId);
+
+        return GetReportExperienceResponseDto
+                .of(experiences.stream().map(GetReportExperienceResponseDto.item::from).toList());
     }
 
     private AIReport parseAndSave(String content, Experience experience, Company company) {
