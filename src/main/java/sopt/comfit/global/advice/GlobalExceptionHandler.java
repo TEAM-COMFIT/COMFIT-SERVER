@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -167,6 +168,17 @@ public class GlobalExceptionHandler {
                                                                            HttpServletRequest request) {
         log.warn("Media type not supported: {}", e.getContentType());
         return convert(CommonErrorCode.NOT_SUPPORTED_MEDIA_TYPE_ERROR);
+    }
+
+    /**
+     *데이터 정합성 예외
+     *unique key, FK, NOT NULL 위반
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<CustomErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+
+        log.warn("Data integrity violation: {}", e.getMessage());
+        return convert(CommonErrorCode.DATA_INTEGRITY_VIOLATION);
     }
 
     /**

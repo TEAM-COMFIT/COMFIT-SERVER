@@ -24,4 +24,5 @@ public interface AIReportRepository extends JpaRepository<AIReport, Long> {
     );
 
     Optional<AIReport> findByExperienceUserIdAndId(Long userId, Long id);
+    boolean existsByCompanyIdAndUserId(Long companyId, Long userId);
 }
