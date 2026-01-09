@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import sopt.comfit.company.dto.response.GetReportCompanyResponseDto;
+import sopt.comfit.experience.dto.response.GetReportExperienceResponseDto;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.global.dto.CommonApiResponse;
 import sopt.comfit.global.dto.CustomErrorResponse;
@@ -94,4 +96,48 @@ public interface AIReportSwagger {
     @SecurityRequirement(name = "JWT")
     AIReportResponseDto getReport(@LoginUser Long userId,
                                   @PathVariable Long reportId);
+
+    @Operation(
+            summary = "Report 분석 전 경험 리스트 조회",
+            description = "Report 분석 전 경험 리스트 조회 API입니다"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "리스트 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CommonApiResponse.class))),
+
+            @ApiResponse(responseCode = "403", description = "권한 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "헤더값 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @GetMapping("/experiences")
+    @SecurityRequirement(name = "JWT")
+    GetReportExperienceResponseDto getReportExperience(@LoginUser Long userId);
+
+
+    @Operation(
+            summary = "Report 분석 전 기업 정보 단일 조회",
+            description = "Report 분석 전 기업 정보 단일 조회"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "기업 단일 조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CommonApiResponse.class))),
+
+            @ApiResponse(responseCode = "403", description = "권한 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "헤더값 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "company id 값 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @GetMapping("/companies/{companyId}")
+    @SecurityRequirement(name = "JWT")
+    GetReportCompanyResponseDto getReportCompany(@PathVariable Long companyId);
 }
