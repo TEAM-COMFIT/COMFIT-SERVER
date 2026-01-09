@@ -1,6 +1,5 @@
 package sopt.comfit.report.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -42,15 +41,13 @@ public class AIReportController implements AIReportSwagger {
         return aiReportService.getReport(userId, reportId);
     }
 
-    @GetMapping("/experiences")
-    @SecurityRequirement(name = "JWT")
+    @Override
     public GetReportExperienceResponseDto getReportExperience(@LoginUser Long userId){
 
         return aiReportService.getReportExperience(userId);
     }
 
-    @GetMapping("/companies/{companyId}")
-    @SecurityRequirement(name = "JWT")
+    @Override
     public GetReportCompanyResponseDto getReportCompany(@PathVariable Long companyId){
         return aiReportService.getReportCompany(companyId);
     }
