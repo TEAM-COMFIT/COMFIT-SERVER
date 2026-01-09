@@ -2,11 +2,14 @@ package sopt.comfit.report.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import sopt.comfit.company.domain.Company;
+import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.global.base.BaseTimeEntity;
-import sopt.comfit.user.domain.User;
 
 @Entity
 @Getter
@@ -17,12 +20,15 @@ public class AIReport extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "perspectives", nullable = false, columnDefinition = "JSONB")
     private String perspectives;
 
-    @Column(name = "density", nullable = false, columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "density", nullable = false, columnDefinition = "JSONB")
     private String density;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "appeal_point", nullable = false, columnDefinition = "JSONB")
     private String appealPoint;
 
@@ -33,10 +39,50 @@ public class AIReport extends BaseTimeEntity {
     private String guidance;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "experience_id", nullable = false)
+    private Experience experience;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
+
+    @Builder(access = AccessLevel.PROTECTED)
+    private AIReport(final String perspectives,
+                     final String density,
+                     final String appealPoint,
+                     final String suggestion,
+                     final String guidance,
+                     final Experience experience,
+                     final Company company) {
+        this.perspectives = perspectives;
+        this.density = density;
+        this.appealPoint = appealPoint;
+        this.suggestion = suggestion;
+        this.guidance = guidance;
+        this.experience = experience;
+        this.company = company;
+    }
+
+    public static AIReport create(
+            final String perspectives,
+            final String density,
+            final String appealPoint,
+            final String suggestion,
+            final String guidance,
+            final Experience experience,
+            final Company company) {
+
+        return AIReport.builder()
+                .perspectives(perspectives)
+                .density(density)
+                .appealPoint(appealPoint)
+                .suggestion(suggestion)
+                .guidance(guidance)
+                .experience(experience)
+                .company(company)
+                .build();
+    }
+
+
+
 }
