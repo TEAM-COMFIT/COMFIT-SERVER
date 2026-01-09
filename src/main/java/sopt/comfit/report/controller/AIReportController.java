@@ -12,6 +12,7 @@ import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.report.dto.command.MatchExperienceCommandDto;
 import sopt.comfit.report.dto.request.MatchExperienceRequestDto;
 import sopt.comfit.report.dto.response.AIReportResponseDto;
+import sopt.comfit.report.dto.response.GetReportSummaryResponseDto;
 import sopt.comfit.report.service.AIReportService;
 
 @RestController
@@ -28,9 +29,9 @@ public class AIReportController implements AIReportSwagger {
     }
 
     @Override
-    public PageDto<sopt.comfit.report.dto.response.GetReportSummaryResponseDto> getReportList(@LoginUser Long userId,
-                                                                                              @RequestParam(defaultValue = "1") int page,
-                                                                                              @RequestParam(required = false) String keyword){
+    public PageDto<GetReportSummaryResponseDto> getReportList(@LoginUser Long userId,
+                                                              @RequestParam(defaultValue = "1") int page,
+                                                              @RequestParam(required = false) String keyword){
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), 4);
         return aiReportService.getReportList(userId, pageable, keyword);
     }
