@@ -5,14 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import sopt.comfit.global.exception.ErrorCode;
 
-@RequiredArgsConstructor
 @Getter
-public enum UserErrorCode implements ErrorCode {
+@RequiredArgsConstructor
+public enum UserCompanyErrorCode implements ErrorCode {
 
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_404_001", "해당하는 유저를 찾을 수 없습니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "USER_400_002", "비밀번호가 일치하지 않습니다."),;
-
-
+    USER_COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_COMPANY_404_001", "해당하는 북마크 기업을 찾을 수 없습니다");
 
     private final HttpStatus status;
     private final String prefix;
