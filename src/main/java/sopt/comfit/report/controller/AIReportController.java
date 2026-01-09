@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import sopt.comfit.company.dto.response.GetReportCompanyResponseDto;
 import sopt.comfit.experience.dto.response.GetReportExperienceResponseDto;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.global.dto.PageDto;
@@ -46,5 +47,11 @@ public class AIReportController implements AIReportSwagger {
     public GetReportExperienceResponseDto getReportExperience(@LoginUser Long userId){
 
         return aiReportService.getReportExperience(userId);
+    }
+
+    @GetMapping("/companies/{companyId}")
+    @SecurityRequirement(name = "JWT")
+    public GetReportCompanyResponseDto getReportCompany(@PathVariable Long companyId){
+        return aiReportService.getReportCompany(companyId);
     }
 }
