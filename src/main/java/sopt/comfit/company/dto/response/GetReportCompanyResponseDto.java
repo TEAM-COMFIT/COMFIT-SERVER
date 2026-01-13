@@ -12,9 +12,7 @@ public record GetReportCompanyResponseDto(
 
         String companyUrl,
 
-        String jobDescription,
-
-        String logo
+      String logo
 ) {
     public static GetReportCompanyResponseDto from (Company company) {
         return new GetReportCompanyResponseDto(
@@ -22,7 +20,6 @@ public record GetReportCompanyResponseDto(
                 company.getIndustry(),
                 company.getRecruitUrl(),
                 company.getCompanyUrl(),
-                company.getJobDescription(),
                 company.getLogo()
         );
     }
