@@ -64,6 +64,9 @@ dependencies {
     // openfeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    //S3
+    implementation 'software.amazon.awssdk:s3:2.20.26'
+
 }
 
 tasks.named('test') {
