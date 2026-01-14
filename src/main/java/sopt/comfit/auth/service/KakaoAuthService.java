@@ -11,7 +11,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import sopt.comfit.auth.dto.KakaoTokenResponseDTO;
 import sopt.comfit.auth.dto.KakaoUserApiResponseDTO;
 import sopt.comfit.auth.dto.UserInfoDTO;
+import sopt.comfit.auth.exception.KakaoLoginErrorCode;
 import sopt.comfit.global.dto.JwtDto;
+import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.global.security.util.JwtUtil;
 import sopt.comfit.university.domain.UniversityRepository;
 import sopt.comfit.user.domain.User;
@@ -54,7 +56,7 @@ public class KakaoAuthService {
         System.out.println("response = " + response);
 
         if (response == null || response.access_token() == null) {
-            throw new IllegalStateException("카카오 access token 발급 실패");
+            BaseException.type(KakaoLoginErrorCode.KAKAO_ACCESS_TOKEN_FAIL);
         }
 
         return response.access_token();
@@ -72,7 +74,7 @@ public class KakaoAuthService {
                 .block();
 
         if (response == null) {
-            throw new IllegalStateException("카카오 사용자 정보 조회 실패");
+            BaseException.type(KakaoLoginErrorCode.USERINFO_NOT_FOUND);
         }
         return registerOrLogin(response);
     }
