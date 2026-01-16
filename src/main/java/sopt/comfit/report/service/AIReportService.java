@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 import sopt.comfit.company.domain.Company;
 import sopt.comfit.company.domain.CompanyIssue;
 import sopt.comfit.company.domain.CompanyIssueRepository;
@@ -27,9 +28,10 @@ import sopt.comfit.report.dto.command.MatchExperienceCommandDto;
 import sopt.comfit.report.dto.response.AIReportResponseDto;
 import sopt.comfit.report.dto.response.GetReportSummaryResponseDto;
 import sopt.comfit.report.exception.AIReportErrorCode;
-import sopt.comfit.report.infra.OpenAiClient;
+import sopt.comfit.report.infra.feign.OpenAiFeignClient;
 import sopt.comfit.report.infra.dto.CreateReportAiRequestDto;
 import sopt.comfit.report.infra.dto.CreateReportAiResponseDto;
+import sopt.comfit.report.infra.webclient.AiWebClient;
 
 import java.util.List;
 
@@ -38,12 +40,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AIReportService {
 
-    private final OpenAiClient openAiClient;
+    private final OpenAiFeignClient openAiFeignClient;
     private final CompanyRepository companyRepository;
     private final ExperienceRepository experienceRepository;
     private final CompanyIssueRepository companyIssueRepository;
     private final ObjectMapper objectMapper;
     private final AIReportRepository aIReportRepository;
+    private final AiWebClient aiWebClient;
 
     @Transactional
     public AIReportResponseDto matchExperience(MatchExperienceCommandDto command) {
@@ -58,7 +61,7 @@ public class AIReportService {
         log.info("OpenAI API 호출 시작 - companyId: {}, experienceId: {}", company.getId(), experience.getId());
         long startTime = System.currentTimeMillis();
 
-        CreateReportAiResponseDto response = openAiClient
+        CreateReportAiResponseDto response = openAiFeignClient
                 .createReport(CreateReportAiRequestDto
                         .from(AIReportPromptBuilder
                                 .build(company, experience, command.jobDescription(), companyIssueList)));
@@ -75,6 +78,35 @@ public class AIReportService {
 
         return AIReportResponseDto.from(aiReport);
     }
+
+    public Mono<AIReportResponseDto> matchExperienceAsync(MatchExperienceCommandDto command){
+        return Mono.fromCallable(() -> {
+            Company company = companyRepository.findById(command.companyId())
+                    .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
+
+            Experience experience = experienceRepository.findByIdAndUserId(command.experienceId(), command.userId())
+                    .orElseThrow(() -> new BaseException(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+            List<CompanyIssue> companyIssueList = companyIssueRepository.findByCompanyId(command.companyId());
+
+            return new PreparedData(company, experience, companyIssueList);
+        })
+                .flatMap(data -> aiWebClient
+                        .createReport(CreateReportAiRequestDto
+                                .from(AIReportPromptBuilder
+                                        .build(data.company, data.experience,
+                                                command.jobDescription(), data.issues)))
+                .map(response -> {
+                    AIReport aiReport = parseAndSave(
+                            response.getContent(),
+                            data.experience,
+                            data.company(),
+                            command.jobDescription()
+                    );
+                    return AIReportResponseDto.from(aiReport);
+                }));
+    }
+
 
     @Transactional(readOnly = true)
     public PageDto<GetReportSummaryResponseDto> getReportList(Long userId, Pageable pageable, String keyword) {
@@ -155,5 +187,11 @@ public class AIReportService {
             throw BaseException.type(AIReportErrorCode.AI_RESPONSE_PARSE_FAILED);
         }
     }
+
+    private record PreparedData(
+            Company company,
+            Experience experience,
+            List<CompanyIssue> issues
+    ) {}
 }
 

@@ -1,10 +1,13 @@
 package sopt.comfit.report.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 import sopt.comfit.company.dto.response.GetReportCompanyResponseDto;
 import sopt.comfit.experience.dto.response.GetReportExperienceResponseDto;
 import sopt.comfit.global.annotation.LoginUser;
@@ -51,5 +54,12 @@ public class AIReportController implements AIReportSwagger {
     @Override
     public GetReportCompanyResponseDto getReportCompany(@PathVariable Long companyId){
         return aiReportService.getReportCompany(companyId);
+    }
+
+    @PostMapping("/match/async")
+    @SecurityRequirement(name = "JWT")
+    public Mono<AIReportResponseDto> matchAsync(@LoginUser Long userid ,
+                                                @RequestBody MatchExperienceRequestDto request) {
+        return aiReportService.matchExperienceAsync(MatchExperienceCommandDto.of(userid, request));
     }
 }

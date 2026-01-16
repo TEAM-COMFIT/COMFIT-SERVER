@@ -1,10 +1,10 @@
-package sopt.comfit.report.infra;
+package sopt.comfit.report.infra.feign;
 
 import feign.RequestInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
-public class OpenAiClientConfig {
+public class OpenAiFeignClientConfig {
 
     @Value("${openai.api.key}")
     private String apiKey;
