@@ -23,6 +23,7 @@ public class Constants {
             "/api/health",
             "/api/health-check",
             "/api/v1/login",
-            "/actuator/**"
+            "/actuator/**",
+            "/oauth/kakao/callback"
     );
 }
