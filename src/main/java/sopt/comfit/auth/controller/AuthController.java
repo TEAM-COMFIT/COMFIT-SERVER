@@ -3,11 +3,13 @@ package sopt.comfit.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import sopt.comfit.auth.dto.LoginUserInfoDto;
+import sopt.comfit.auth.dto.LoginResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
+import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.LoginRequestDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
 import sopt.comfit.auth.kakao.service.KakaoAuthService;
@@ -57,9 +59,11 @@ public class AuthController {
     }
 
     @GetMapping("/oauth/kakao/callback")
-    public LoginUserInfoDto kakaoCallback(
-            @RequestParam("code") String code
+    public LoginResponseDto kakaoCallback(
+            @RequestParam("code") String code,
+            HttpServletResponse response
     ) {
-        return kakaoAuthService.getKakaoUserInfoByCode(code);
+        LoginQueryDto loginQueryDto = kakaoAuthService.getKakaoUserInfoByCode(code);
+        return LoginResponseDto.of(loginQueryDto);
     }
 }

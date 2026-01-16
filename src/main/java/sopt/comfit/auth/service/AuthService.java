@@ -1,6 +1,5 @@
 package sopt.comfit.auth.service;
 
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,8 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
-import sopt.comfit.auth.dto.LoginUserInfoDto;
+import sopt.comfit.auth.dto.LoginResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
+import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
 import sopt.comfit.auth.exception.AuthErrorCode;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
@@ -99,7 +99,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginUserInfoDto registerOrLogin(KakaoUserApiResponseDto dto) {
+    public LoginQueryDto registerOrLogin(KakaoUserApiResponseDto dto) {
         Optional<User> optionalUser =
                 userRepository.findByEmail(dto.kakao_account().email());
 
@@ -116,6 +116,6 @@ public class AuthService {
         );
 
         JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
-        return LoginUserInfoDto.of(user.getId(), isNew, jwtDto);
+        return LoginQueryDto.of(user.getId(), isNew, jwtDto);
     }
 }

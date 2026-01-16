@@ -7,9 +7,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.kakao.dto.KakaoTokenResponseDto;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
-import sopt.comfit.auth.dto.LoginUserInfoDto;
+import sopt.comfit.auth.dto.LoginResponseDto;
 import sopt.comfit.auth.exception.AuthErrorCode;
 import sopt.comfit.auth.service.AuthService;
 import sopt.comfit.global.exception.BaseException;
@@ -29,7 +30,7 @@ public class KakaoAuthService {
     private final UniversityRepository universityRepository;
     private final AuthService authService;
 
-    public LoginUserInfoDto getKakaoUserInfoByCode(String code) {
+    public LoginQueryDto getKakaoUserInfoByCode(String code) {
         String accessToken = getKakaoAccessToken(code);
         return getKakaoUserInfo(accessToken);
     }
@@ -58,7 +59,7 @@ public class KakaoAuthService {
         return response.access_token();
     }
 
-    private LoginUserInfoDto getKakaoUserInfo(String accessToken) {
+    private LoginQueryDto getKakaoUserInfo(String accessToken) {
 
         WebClient webClient = WebClient.create("https://kapi.kakao.com");
 
