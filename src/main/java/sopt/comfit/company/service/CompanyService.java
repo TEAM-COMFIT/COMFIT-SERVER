@@ -8,6 +8,7 @@ import sopt.comfit.company.domain.CompanyIssue;
 import sopt.comfit.company.domain.CompanyIssueRepository;
 import sopt.comfit.company.domain.CompanyRepository;
 import sopt.comfit.company.dto.response.GetCompanyResponseDto;
+import sopt.comfit.company.dto.response.GetSuggestionCompanyResponseDto;
 import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.user.domain.UserCompanyRepository;
@@ -42,5 +43,17 @@ public class CompanyService {
         List<CompanyIssue> companyIssueList = companyIssueRepository.findByCompanyId(companyId);
 
         return GetCompanyResponseDto.of(company, null, companyIssueList);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetSuggestionCompanyResponseDto> getSuggestionCompany(Long companyId){
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
+
+        return companyRepository.findTop4ByIndustryAndIdNot(company.getIndustry(), companyId)
+                .stream()
+                .limit(4)
+                .map(GetSuggestionCompanyResponseDto::from)
+                .toList();
     }
 }

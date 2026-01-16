@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sopt.comfit.company.dto.response.GetCompanyResponseDto;
+import sopt.comfit.company.dto.response.GetSuggestionCompanyResponseDto;
 import sopt.comfit.company.service.CompanyService;
 import sopt.comfit.global.annotation.LoginUser;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/companies")
@@ -26,5 +29,10 @@ public class CompanyController {
         }
         return companyService.getCompany(userId ,companyId);
 
+    }
+
+    @GetMapping("{companyId}/suggestion")
+    public List<GetSuggestionCompanyResponseDto> getSuggestionCompany(@PathVariable Long companyId){
+        return companyService.getSuggestionCompany(companyId);
     }
 }
