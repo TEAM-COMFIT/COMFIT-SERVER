@@ -3,7 +3,7 @@ package sopt.comfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import sopt.comfit.global.exception.BaseException;
-import sopt.comfit.global.exception.EIndustryErrorCode;
+import sopt.comfit.global.exception.CommonErrorCode;
 
 import java.util.Arrays;
 
@@ -27,7 +27,7 @@ public enum EIndustry {
         return Arrays.stream(values())
                 .filter(eIndustry -> eIndustry.getCode().equals(value))
                 .findFirst().orElseThrow(
-                        () -> BaseException.type(EIndustryErrorCode.EINDUSTRY_NOT_FOUND)
+                        () -> BaseException.type(CommonErrorCode.EINDUSTRY_NOT_FOUND)
                 );
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
-import sopt.comfit.auth.dto.UserInfoDto;
+import sopt.comfit.auth.dto.LoginUserInfoDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
@@ -68,7 +68,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UserInfoDto registerOrLogin(KakaoUserApiResponseDto dto) {
+    public LoginUserInfoDto registerOrLogin(KakaoUserApiResponseDto dto) {
         Optional<User> optionalUser =
                 userRepository.findByEmail(dto.kakao_account().email());
 
@@ -85,6 +85,6 @@ public class AuthService {
         );
 
         JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
-        return UserInfoDto.from(user, isNew, jwtDto);
+        return LoginUserInfoDto.of(user.getId(), isNew, jwtDto);
     }
 }

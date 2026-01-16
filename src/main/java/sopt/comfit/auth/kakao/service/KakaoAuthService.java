@@ -9,14 +9,12 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import sopt.comfit.auth.kakao.dto.KakaoTokenResponseDto;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
-import sopt.comfit.auth.dto.UserInfoDto;
+import sopt.comfit.auth.dto.LoginUserInfoDto;
 import sopt.comfit.auth.kakao.exception.KakaoLoginErrorCode;
 import sopt.comfit.auth.service.AuthService;
-import sopt.comfit.global.dto.JwtDto;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.global.security.util.JwtUtil;
 import sopt.comfit.university.domain.UniversityRepository;
-import sopt.comfit.user.domain.User;
 import sopt.comfit.user.domain.UserRepository;
 
 @Service
@@ -31,7 +29,7 @@ public class KakaoAuthService {
     private final UniversityRepository universityRepository;
     private final AuthService authService;
 
-    public UserInfoDto getKakaoUserInfoByCode(String code) {
+    public LoginUserInfoDto getKakaoUserInfoByCode(String code) {
         String accessToken = getKakaoAccessToken(code);
         return getKakaoUserInfo(accessToken);
     }
@@ -60,7 +58,7 @@ public class KakaoAuthService {
         return response.access_token();
     }
 
-    private UserInfoDto getKakaoUserInfo(String accessToken) {
+    private LoginUserInfoDto getKakaoUserInfo(String accessToken) {
 
         WebClient webClient = WebClient.create("https://kapi.kakao.com");
 
