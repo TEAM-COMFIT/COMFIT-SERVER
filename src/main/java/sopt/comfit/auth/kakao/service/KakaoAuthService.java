@@ -1,28 +1,23 @@
-package sopt.comfit.auth.service;
+package sopt.comfit.auth.kakao.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import sopt.comfit.auth.dto.KakaoTokenResponseDTO;
-import sopt.comfit.auth.dto.KakaoUserApiResponseDTO;
-import sopt.comfit.auth.dto.UserInfoDTO;
-import sopt.comfit.auth.exception.KakaoLoginErrorCode;
-import sopt.comfit.global.dto.JwtDto;
+import sopt.comfit.auth.kakao.dto.KakaoTokenResponseDto;
+import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
+import sopt.comfit.auth.dto.LoginUserInfoDto;
+import sopt.comfit.auth.kakao.exception.KakaoLoginErrorCode;
+import sopt.comfit.auth.service.AuthService;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.global.security.util.JwtUtil;
 import sopt.comfit.university.domain.UniversityRepository;
-import sopt.comfit.user.domain.User;
 import sopt.comfit.user.domain.UserRepository;
 
-import java.util.Optional;
-
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class KakaoAuthService {
 
@@ -32,8 +27,9 @@ public class KakaoAuthService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final UniversityRepository universityRepository;
+    private final AuthService authService;
 
-    public UserInfoDTO getKakaoUserInfoByCode(String code) {
+    public LoginUserInfoDto getKakaoUserInfoByCode(String code) {
         String accessToken = getKakaoAccessToken(code);
         return getKakaoUserInfo(accessToken);
     }
@@ -41,7 +37,7 @@ public class KakaoAuthService {
     private String getKakaoAccessToken(String code) {
         WebClient webClient = WebClient.create("https://kauth.kakao.com");
 
-        KakaoTokenResponseDTO response = webClient.post()
+        KakaoTokenResponseDto response = webClient.post()
                 .uri("/oauth/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
@@ -50,52 +46,32 @@ public class KakaoAuthService {
                         .with("redirect_uri", redirectUri)
                         .with("code", code))
                 .retrieve()
-                .bodyToMono(KakaoTokenResponseDTO.class)
+                .bodyToMono(KakaoTokenResponseDto.class)
                 .block();
 
         System.out.println("response = " + response);
 
         if (response == null || response.access_token() == null) {
-            BaseException.type(KakaoLoginErrorCode.KAKAO_ACCESS_TOKEN_FAIL);
+            throw BaseException.type(KakaoLoginErrorCode.KAKAO_ACCESS_TOKEN_FAIL);
         }
 
         return response.access_token();
     }
 
-    private UserInfoDTO getKakaoUserInfo(String accessToken) {
+    private LoginUserInfoDto getKakaoUserInfo(String accessToken) {
 
         WebClient webClient = WebClient.create("https://kapi.kakao.com");
 
-        KakaoUserApiResponseDTO response = webClient.get()
+        KakaoUserApiResponseDto response = webClient.get()
                 .uri("/v2/user/me")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
-                .bodyToMono(KakaoUserApiResponseDTO.class)
+                .bodyToMono(KakaoUserApiResponseDto.class)
                 .block();
 
         if (response == null) {
-            BaseException.type(KakaoLoginErrorCode.USERINFO_NOT_FOUND);
+            throw BaseException.type(KakaoLoginErrorCode.USERINFO_NOT_FOUND);
         }
-        return registerOrLogin(response);
-    }
-
-    private UserInfoDTO registerOrLogin(KakaoUserApiResponseDTO dto) {
-        Optional<User> optionalUser =
-                userRepository.findByEmail(dto.kakao_account().email());
-
-        boolean isNew = optionalUser.isEmpty();
-
-        User user = optionalUser.orElseGet(() ->
-                userRepository.save(
-                        User.createKakaoUser(
-                                dto.kakao_account().email(),
-                                String.valueOf(dto.id()),
-                                dto.kakao_account().profile().nickname()
-                        )
-                )
-        );
-
-        JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
-        return UserInfoDTO.from(user, isNew, jwtDto);
+        return authService.registerOrLogin(response);
     }
 }
