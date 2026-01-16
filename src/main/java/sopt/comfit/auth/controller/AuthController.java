@@ -6,12 +6,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import sopt.comfit.auth.dto.LoginUserInfoDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
 import sopt.comfit.auth.dto.request.LoginRequestDto;
+import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
+import sopt.comfit.auth.kakao.service.KakaoAuthService;
 import sopt.comfit.auth.dto.request.ReIssueTokenRequestDto;
 import sopt.comfit.auth.service.AuthService;
 import sopt.comfit.global.annotation.LoginUser;
@@ -23,6 +23,7 @@ import sopt.comfit.global.dto.JwtDto;
 public class AuthController {
 
     private final AuthService authService;
+    private final KakaoAuthService kakaoAuthService;
 
     @PostMapping("/login")
     public JwtDto join(
@@ -46,5 +47,21 @@ public class AuthController {
             @RequestBody @Valid ReIssueTokenRequestDto request
     ) {
         return authService.reissueToken(request.refreshToken());
+    }
+}
+
+    @PostMapping("/on-boarding")
+    public void addUserInfo(
+            @LoginUser Long userId,
+            @RequestBody @Valid OnBoardingRequestDTO request
+    ) {
+        authService.addUserInfo(userId, request);
+    }
+
+    @GetMapping("/oauth/kakao/callback")
+    public LoginUserInfoDto kakaoCallback(
+            @RequestParam("code") String code
+    ) {
+        return kakaoAuthService.getKakaoUserInfoByCode(code);
     }
 }

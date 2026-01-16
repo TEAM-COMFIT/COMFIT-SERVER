@@ -7,10 +7,12 @@ public record MatchExperienceCommandDto(
 
         Long companyId,
 
-        Long experienceId
+        Long experienceId,
+
+        String jobDescription
 
 ) {
     public static MatchExperienceCommandDto of(Long userId, MatchExperienceRequestDto request) {
-        return new MatchExperienceCommandDto(userId, request.companyId(), request.experienceId());
+        return new MatchExperienceCommandDto(userId, request.companyId(), request.experienceId(), request.jobDescription());
     }
 }

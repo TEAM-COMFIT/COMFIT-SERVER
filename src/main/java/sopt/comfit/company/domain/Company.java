@@ -36,9 +36,6 @@ public class Company extends BaseTimeEntity {
     @Column(name = "is_recruiting", nullable = false)
     private boolean isRecruiting;
 
-    @Column(name = "job_description", columnDefinition = "TEXT")
-    private String jobDescription;
-
     //url
     @Column(name = "logo")
     private String logo;

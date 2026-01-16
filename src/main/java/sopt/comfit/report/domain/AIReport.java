@@ -20,6 +20,9 @@ public class AIReport extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "job_description", nullable = false, columnDefinition = "TEXT")
+    private String jobDescription;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "perspectives", nullable = false, columnDefinition = "JSONB")
     private String perspectives;
@@ -47,13 +50,16 @@ public class AIReport extends BaseTimeEntity {
     private Company company;
 
     @Builder(access = AccessLevel.PROTECTED)
-    private AIReport(final String perspectives,
+    private AIReport(
+                     final String jobDescription,
+                     final String perspectives,
                      final String density,
                      final String appealPoint,
                      final String suggestion,
                      final String guidance,
                      final Experience experience,
                      final Company company) {
+        this.jobDescription = jobDescription;
         this.perspectives = perspectives;
         this.density = density;
         this.appealPoint = appealPoint;
@@ -64,6 +70,7 @@ public class AIReport extends BaseTimeEntity {
     }
 
     public static AIReport create(
+            final String jobDescription,
             final String perspectives,
             final String density,
             final String appealPoint,
@@ -73,6 +80,7 @@ public class AIReport extends BaseTimeEntity {
             final Company company) {
 
         return AIReport.builder()
+                .jobDescription(jobDescription)
                 .perspectives(perspectives)
                 .density(density)
                 .appealPoint(appealPoint)
