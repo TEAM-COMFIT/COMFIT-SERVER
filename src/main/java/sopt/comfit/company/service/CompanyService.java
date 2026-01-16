@@ -13,6 +13,7 @@ import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.user.domain.UserCompanyRepository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +52,8 @@ public class CompanyService {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
 
-        List<Company> candidates = companyRepository.findByIndustryAndIdNot(company.getIndustry(), companyId);
+        List<Company> candidates = new ArrayList<>(companyRepository
+                .findByIndustryAndIdNot(company.getIndustry(), companyId));
 
         Collections.shuffle(candidates);
 
