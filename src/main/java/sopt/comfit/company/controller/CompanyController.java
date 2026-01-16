@@ -1,8 +1,6 @@
 package sopt.comfit.company.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,12 +14,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/companies")
 @RequiredArgsConstructor
-public class CompanyController {
+public class CompanyController implements CompanySwagger{
 
     private final CompanyService companyService;
 
-    @GetMapping("{companyId}")
-    @SecurityRequirement(name = "JWT")
+    @Override
     public GetCompanyResponseDto getCompany(@LoginUser(required = false) Long userId ,
                                             @PathVariable Long companyId){
         if(userId == null) {
@@ -31,7 +28,7 @@ public class CompanyController {
 
     }
 
-    @GetMapping("{companyId}/suggestion")
+    @Override
     public List<GetSuggestionCompanyResponseDto> getSuggestionCompany(@PathVariable Long companyId){
         return companyService.getSuggestionCompany(companyId);
     }

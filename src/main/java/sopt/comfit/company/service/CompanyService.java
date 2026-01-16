@@ -13,6 +13,7 @@ import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.user.domain.UserCompanyRepository;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -46,12 +47,15 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetSuggestionCompanyResponseDto> getSuggestionCompany(Long companyId){
+    public List<GetSuggestionCompanyResponseDto> getSuggestionCompany(Long companyId) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
 
-        return companyRepository.findTop4ByIndustryAndIdNot(company.getIndustry(), companyId)
-                .stream()
+        List<Company> candidates = companyRepository.findByIndustryAndIdNot(company.getIndustry(), companyId);
+
+        Collections.shuffle(candidates);
+
+        return candidates.stream()
                 .limit(4)
                 .map(GetSuggestionCompanyResponseDto::from)
                 .toList();

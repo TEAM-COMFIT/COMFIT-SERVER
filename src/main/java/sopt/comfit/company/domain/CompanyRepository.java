@@ -6,5 +6,5 @@ import sopt.comfit.global.enums.EIndustry;
 import java.util.List;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
-    List<Company> findTop4ByIndustryAndIdNot(EIndustry industry, Long id);
+    List<Company> findByIndustryAndIdNot(EIndustry industry, Long id);
 }
