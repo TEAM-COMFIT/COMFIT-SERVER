@@ -12,7 +12,7 @@ public record GetCompanyResponseDto(
 
         String logo,
 
-        boolean isLiked,
+        Boolean isLiked,
 
         EIndustry industry,
 
