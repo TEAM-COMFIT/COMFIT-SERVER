@@ -1,7 +1,6 @@
 package sopt.comfit.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -48,7 +47,6 @@ public class AuthController {
     ) {
         return authService.reissueToken(request.refreshToken());
     }
-}
 
     @PostMapping("/on-boarding")
     public void addUserInfo(

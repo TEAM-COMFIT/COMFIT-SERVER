@@ -11,11 +11,11 @@ import sopt.comfit.auth.domain.RefreshTokenRepository;
 import sopt.comfit.auth.dto.LoginUserInfoDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
+import sopt.comfit.auth.exception.AuthErrorCode;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
 import sopt.comfit.global.dto.JwtDto;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.global.exception.CommonErrorCode;
-import sopt.comfit.global.security.info.JwtUserInfo;
 import sopt.comfit.global.security.util.JwtUtil;
 import sopt.comfit.university.domain.UniversityRepository;
 import sopt.comfit.university.exception.UniversityErrorCode;
@@ -53,44 +53,28 @@ public class AuthService {
         refreshTokenRepository.deleteById(userId.toString());
     }
 
-    @Transactional
-    public JwtDto reissueToken(String refreshToken) {
-        log.info("토큰 재발급 시작");
+    public JwtDto reissueToken(String refreshTokenStr) {
 
-        // RefreshToken 검증
-        Claims claims;
-        try {
-            claims = jwtUtil.validateToken(refreshToken);
-        } catch (Exception e) {
-            log.error("RefreshToken 검증 실패: {}", e.getMessage());
-            throw BaseException.type(CommonErrorCode.TOKEN_MALFORMED_ERROR);
-        }
-
-        // 사용자 정보 추출
-        JwtUserInfo userInfo = JwtUserInfo.from(claims);
-        Long userId = userInfo.userId();
-
-        // Redis에서 RefreshToken 조회
-        RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId.toString())
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenStr)
                 .orElseThrow(() -> {
-                    log.error("저장된 RefreshToken을 찾을 수 없습니다. userId: {}", userId);
-                    return BaseException.type(CommonErrorCode.AUTHENTICATION_USER_NOT_FOUND);
+                    log.warn("만료된 토큰입니다.");
+                    return BaseException.type(AuthErrorCode.REFRESH_TOKEN_EXPIRATION);
                 });
 
-        // RefreshToken 일치 여부 확인
-        if (!storedRefreshToken.getToken().equals(refreshToken)) {
-            log.error("RefreshToken이 일치하지 않습니다. userId: {}", userId);
+        try {
+            jwtUtil.validateToken(refreshTokenStr);
+        } catch (Exception e) {
+            log.warn("RefreshToken 검증 실패: {}", e.getMessage());
             throw BaseException.type(CommonErrorCode.TOKEN_MALFORMED_ERROR);
         }
 
-        // 사용자 정보 조회
+        Long userId = Long.parseLong(refreshToken.getId());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
 
-        // 새로운 토큰 발급
         JwtDto newJwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
 
-        // 새로운 RefreshToken 저장
         refreshTokenRepository.save(RefreshToken.issueRefreshToken(user.getId(), newJwtDto.refreshToken()));
 
         log.info("토큰 재발급 완료. userId: {}", userId);
