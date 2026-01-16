@@ -3,6 +3,8 @@ package sopt.comfit.global.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum EIndustry {
@@ -17,4 +19,10 @@ public enum EIndustry {
     FITNESS("헬스케어/웰니스");
 
     private final String description;
+
+    public static EIndustry from(String value) {
+        return Arrays.stream(values())
+                .filter(eIndustry -> eIndustry.getDescription().equals(value))
+                .findFirst().orElseGet(null);
+    }
 }
