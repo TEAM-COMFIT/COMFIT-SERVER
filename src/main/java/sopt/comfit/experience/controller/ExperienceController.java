@@ -1,5 +1,6 @@
 package sopt.comfit.experience.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
+import sopt.comfit.experience.dto.command.UpdateDefaultCommandDto;
 import sopt.comfit.experience.dto.command.UpdateExperienceCommandDto;
 import sopt.comfit.experience.dto.request.ExperienceRequestDto;
 import sopt.comfit.experience.dto.response.GetExperienceResponseDto;
@@ -54,5 +56,12 @@ public class ExperienceController implements ExperienceSwagger {
     public void deleteExperience(@LoginUser Long userId,
                                  @PathVariable Long experienceId){
         experienceService.deleteExperience(userId, experienceId);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @PatchMapping("{experienceId}")
+    public void updateDefault(@LoginUser Long userId,
+                              @PathVariable Long experienceId){
+        experienceService.updateDefault(UpdateDefaultCommandDto.of(userId, experienceId));
     }
 }

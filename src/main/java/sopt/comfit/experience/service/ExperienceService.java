@@ -10,6 +10,7 @@ import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.experience.domain.ExperienceRepository;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
+import sopt.comfit.experience.dto.command.UpdateDefaultCommandDto;
 import sopt.comfit.experience.dto.command.UpdateExperienceCommandDto;
 import sopt.comfit.experience.dto.response.GetExperienceResponseDto;
 import sopt.comfit.experience.dto.response.GetSummaryExperienceResponseDto;
@@ -105,6 +106,21 @@ public class ExperienceService {
 
         experienceRepository.delete(experience);
         log.info("경험 삭제 완료 - userId: {}, experienceId: {}", userId, experienceId);
+    }
+
+    @Transactional
+    public void updateDefault(UpdateDefaultCommandDto command){
+        Experience experience = experienceRepository.findByIdAndUserId(command.experienceId(), command.userId())
+                .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+        if(experience.isDefault()){
+            experience.cancelDefault();
+            return;
+        }
+
+        cancelExistingDefault(command.userId());
+
+        experience.activateDefault();
     }
 
     private void cancelExistingDefault(Long userId) {
