@@ -115,16 +115,20 @@ public class ExperienceService {
 
         if(experience.isDefault()){
             experience.cancelDefault();
+            log.debug("기본 경험 해제 experienceId: {}", experience.getId());
             return;
         }
 
         cancelExistingDefault(command.userId());
 
         experience.activateDefault();
+        log.debug("기본 경험 활성화 experienceId: {}", experience.getId());
     }
 
     private void cancelExistingDefault(Long userId) {
         experienceRepository.findByUserIdAndIsDefaultTrue(userId)
-                .ifPresent(Experience::cancelDefault);
+                .ifPresent(experience -> {
+                    log.debug("기존 기본 경험 해제 experienceId: {}", experience.getId());
+                    experience.cancelDefault();});
     }
 }
