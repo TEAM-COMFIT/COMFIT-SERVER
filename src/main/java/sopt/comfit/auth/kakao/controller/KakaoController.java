@@ -1,12 +1,11 @@
-package sopt.comfit.auth.controller;
+package sopt.comfit.auth.kakao.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import sopt.comfit.auth.dto.UserInfoDTO;
-import sopt.comfit.auth.service.KakaoAuthService;
+import sopt.comfit.auth.dto.UserInfoDto;
+import sopt.comfit.auth.kakao.service.KakaoAuthService;
 
 
 @RestController
@@ -16,10 +15,10 @@ public class KakaoController {
     private final KakaoAuthService kakaoAuthService;
 
     @GetMapping("/oauth/kakao/callback")
-    public UserInfoDTO kakaoCallback(
+    public UserInfoDto kakaoCallback(
             @RequestParam("code") String code
     ) {
-        UserInfoDTO userInfoDto = kakaoAuthService.getKakaoUserInfoByCode(code);
+        UserInfoDto userInfoDto = kakaoAuthService.getKakaoUserInfoByCode(code);
         return userInfoDto;
     }
 }
