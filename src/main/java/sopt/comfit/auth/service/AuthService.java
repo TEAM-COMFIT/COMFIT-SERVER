@@ -7,12 +7,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
-import sopt.comfit.auth.dto.LoginUserInfoDto;
+import sopt.comfit.auth.dto.LoginResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
+import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
+import sopt.comfit.auth.exception.AuthErrorCode;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
 import sopt.comfit.global.dto.JwtDto;
 import sopt.comfit.global.exception.BaseException;
+import sopt.comfit.global.exception.CommonErrorCode;
 import sopt.comfit.global.security.util.JwtUtil;
 import sopt.comfit.university.domain.UniversityRepository;
 import sopt.comfit.university.exception.UniversityErrorCode;
@@ -50,6 +53,34 @@ public class AuthService {
         refreshTokenRepository.deleteById(userId.toString());
     }
 
+    public JwtDto reissueToken(String refreshTokenStr) {
+
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenStr)
+                .orElseThrow(() -> {
+                    log.warn("만료된 토큰입니다.");
+                    return BaseException.type(AuthErrorCode.REFRESH_TOKEN_EXPIRATION);
+                });
+
+        try {
+            jwtUtil.validateToken(refreshTokenStr);
+        } catch (Exception e) {
+            log.warn("RefreshToken 검증 실패: {}", e.getMessage());
+            throw BaseException.type(CommonErrorCode.TOKEN_MALFORMED_ERROR);
+        }
+
+        Long userId = Long.parseLong(refreshToken.getId());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
+
+        JwtDto newJwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
+
+        refreshTokenRepository.save(RefreshToken.issueRefreshToken(user.getId(), newJwtDto.refreshToken()));
+
+        log.info("토큰 재발급 완료. userId: {}", userId);
+        return newJwtDto;
+    }
+
     @Transactional
     public void addUserInfo(Long userId, OnBoardingRequestDTO request) {
         User user = userRepository.findById(userId)
@@ -68,7 +99,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginUserInfoDto registerOrLogin(KakaoUserApiResponseDto dto) {
+    public LoginQueryDto registerOrLogin(KakaoUserApiResponseDto dto) {
         Optional<User> optionalUser =
                 userRepository.findByEmail(dto.kakao_account().email());
 
@@ -85,6 +116,6 @@ public class AuthService {
         );
 
         JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
-        return LoginUserInfoDto.of(user.getId(), isNew, jwtDto);
+        return LoginQueryDto.of(user.getId(), isNew, jwtDto);
     }
 }
