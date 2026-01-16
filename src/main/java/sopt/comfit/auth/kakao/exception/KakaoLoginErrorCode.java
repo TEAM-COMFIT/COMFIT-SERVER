@@ -1,7 +1,6 @@
-package sopt.comfit.auth.exception;
+package sopt.comfit.auth.kakao.exception;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import sopt.comfit.global.exception.ErrorCode;
