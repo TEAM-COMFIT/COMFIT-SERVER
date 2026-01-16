@@ -22,7 +22,6 @@ import sopt.comfit.user.domain.UserRepository;
 import java.util.Optional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class KakaoAuthService {
 
@@ -56,7 +55,7 @@ public class KakaoAuthService {
         System.out.println("response = " + response);
 
         if (response == null || response.access_token() == null) {
-            BaseException.type(KakaoLoginErrorCode.KAKAO_ACCESS_TOKEN_FAIL);
+            throw BaseException.type(KakaoLoginErrorCode.KAKAO_ACCESS_TOKEN_FAIL);
         }
 
         return response.access_token();
@@ -74,7 +73,7 @@ public class KakaoAuthService {
                 .block();
 
         if (response == null) {
-            BaseException.type(KakaoLoginErrorCode.USERINFO_NOT_FOUND);
+            throw BaseException.type(KakaoLoginErrorCode.USERINFO_NOT_FOUND);
         }
         return registerOrLogin(response);
     }

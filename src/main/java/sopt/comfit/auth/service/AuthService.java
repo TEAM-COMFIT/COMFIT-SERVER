@@ -1,15 +1,10 @@
 package sopt.comfit.auth.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
@@ -51,6 +46,7 @@ public class AuthService {
         refreshTokenRepository.deleteById(userId.toString());
     }
 
+    @Transactional
     public void addUserInfo(Long userId, OnBoardingRequestDTO request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
