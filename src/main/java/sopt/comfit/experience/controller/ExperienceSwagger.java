@@ -145,5 +145,10 @@ public interface ExperienceSwagger {
     @SecurityRequirement(name = "JWT")
     void deleteExperience(@LoginUser Long userId,
                           @PathVariable Long experienceId);
+
+    @SecurityRequirement(name = "JWT")
+    @PatchMapping("{experienceId}/default")
+    public void updateDefault(@LoginUser Long userId,
+                              @PathVariable Long experienceId);
 }
 

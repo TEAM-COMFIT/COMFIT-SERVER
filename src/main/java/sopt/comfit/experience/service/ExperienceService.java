@@ -60,8 +60,8 @@ public class ExperienceService {
     public PageDto<GetSummaryExperienceResponseDto> getSummaryExperienceList(Long userId, EType type, Pageable pageable) {
 
         Page<Experience> experiences = (type == null)
-                ? experienceRepository.findByUserId(userId, pageable)
-                : experienceRepository.findByUserIdAndType(userId, type, pageable);
+                ? experienceRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId, pageable)
+                : experienceRepository.findByUserIdAndTypeOrderByIsDefaultDescCreatedAtDesc(userId, type, pageable);
 
         return PageDto.from(experiences.map(GetSummaryExperienceResponseDto::from));
     }

@@ -1,6 +1,5 @@
 package sopt.comfit.experience.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -58,8 +57,7 @@ public class ExperienceController implements ExperienceSwagger {
         experienceService.deleteExperience(userId, experienceId);
     }
 
-    @SecurityRequirement(name = "JWT")
-    @PatchMapping("{experienceId}")
+    @Override
     public void updateDefault(@LoginUser Long userId,
                               @PathVariable Long experienceId){
         experienceService.updateDefault(UpdateDefaultCommandDto.of(userId, experienceId));
