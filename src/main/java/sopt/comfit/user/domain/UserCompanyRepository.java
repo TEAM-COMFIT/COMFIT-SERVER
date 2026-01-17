@@ -14,4 +14,6 @@ public interface UserCompanyRepository extends JpaRepository<UserCompany, Long> 
     Page<UserCompany> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     Page<UserCompany> findByUserIdOrderByCompanyName(Long companyId, Pageable pageable);
+
+    boolean existsByCompanyIdAndUserId(Long companyId, Long userId);
 }
