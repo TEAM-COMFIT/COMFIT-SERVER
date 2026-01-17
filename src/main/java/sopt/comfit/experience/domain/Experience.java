@@ -108,6 +108,10 @@ public class Experience extends BaseTimeEntity {
         this.isDefault = false;
     }
 
+    public void activateDefault() {
+        this.isDefault = true;
+    }
+
     //validate 메서드
     public static void validateDate(LocalDate startAt, LocalDate endAt) {
         if (endAt.isBefore(startAt)) {

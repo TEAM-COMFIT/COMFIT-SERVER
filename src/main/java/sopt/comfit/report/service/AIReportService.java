@@ -99,7 +99,7 @@ public class AIReportService {
 
     @Transactional(readOnly = true)
     public GetReportExperienceResponseDto getReportExperience(Long userId) {
-        List<Experience> experiences = experienceRepository.findByUserId(userId);
+        List<Experience> experiences = experienceRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId);
 
         return GetReportExperienceResponseDto
                 .of(experiences.stream().map(GetReportExperienceResponseDto.item::from).toList());

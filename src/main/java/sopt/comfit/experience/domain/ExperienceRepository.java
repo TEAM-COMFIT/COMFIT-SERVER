@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public interface ExperienceRepository extends JpaRepository<Experience,Long> {
     Optional<Experience> findByUserIdAndIsDefaultTrue(Long userId);
-    Page<Experience> findByUserId(Long userId, Pageable pageable);
-    Page<Experience> findByUserIdAndType(Long userId, EType type,  Pageable pageable);
+    Page<Experience> findByUserIdOrderByIsDefaultDescCreatedAtDesc(Long userId, Pageable pageable);
+    Page<Experience> findByUserIdAndTypeOrderByIsDefaultDescCreatedAtDesc(Long userId, EType type, Pageable pageable);
     Optional<Experience> findByIdAndUserId(Long experienceId, Long userId);
-    List<Experience> findByUserId(Long userId);
+    List<Experience> findByUserIdOrderByIsDefaultDescCreatedAtDesc(Long userId);
 }
