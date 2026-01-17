@@ -145,5 +145,26 @@ public interface ExperienceSwagger {
     @SecurityRequirement(name = "JWT")
     void deleteExperience(@LoginUser Long userId,
                           @PathVariable Long experienceId);
+
+    @Operation(
+            summary = "기본 경험 수정 API",
+            description = "기본 경험 수정 API입니다"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "기본 경험 수정 성공"),
+            @ApiResponse(responseCode = "403", description = "권한 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "헤더값 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "없는 경험 조회",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @SecurityRequirement(name = "JWT")
+    @PatchMapping("{experienceId}/default")
+    void updateDefault(@LoginUser Long userId,
+                              @PathVariable Long experienceId);
 }
 

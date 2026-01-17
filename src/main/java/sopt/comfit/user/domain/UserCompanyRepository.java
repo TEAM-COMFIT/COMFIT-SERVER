@@ -18,6 +18,8 @@ public interface UserCompanyRepository extends JpaRepository<UserCompany, Long> 
 
     Page<UserCompany> findByUserIdOrderByCompanyName(Long companyId, Pageable pageable);
 
+    boolean existsByCompanyIdAndUserId(Long companyId, Long userId);
+
     @Query("SELECT uc.company.id as companyId, COUNT(uc) as likeCount FROM UserCompany uc WHERE uc.company.id IN :companyIds GROUP BY uc.company.id")
     List<CompanyLikeCount> countByCompanyIds(@Param("companyIds") List<Long> companyIds);
 }

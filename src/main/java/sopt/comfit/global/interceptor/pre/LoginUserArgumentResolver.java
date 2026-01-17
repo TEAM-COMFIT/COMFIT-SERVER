@@ -7,6 +7,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import sopt.comfit.global.annotation.LoginUser;
+import sopt.comfit.global.exception.BaseException;
+import sopt.comfit.global.exception.CommonErrorCode;
 
 @Component
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
@@ -18,15 +20,15 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter,
+                                  ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        LoginUser annotation = parameter.getParameterAnnotation(LoginUser.class);
         final Object userId = webRequest.getAttribute("USER_ID", NativeWebRequest.SCOPE_REQUEST);
-        LoginUser loginUser = parameter.getParameterAnnotation(LoginUser.class);
-        
-        if (userId == null) {
-            if (loginUser != null && loginUser.nullable()) {
-                return null;
-            }
-            throw new sopt.comfit.global.exception.BaseException(sopt.comfit.global.exception.CommonErrorCode.INVALID_HEADER_VALUE);
+        if(userId == null) {
+            if (annotation.required())
+                throw BaseException.type(CommonErrorCode.INVALID_HEADER_VALUE);
+            return null;
         }
         return userId;
     }

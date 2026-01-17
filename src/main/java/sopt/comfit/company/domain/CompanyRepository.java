@@ -9,4 +9,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     List<Company> findByNameContaining(String keyword);
 
     List<Company> findByIndustry(EIndustry industry);
+
+    List<Company> findByIndustryAndIdNot(EIndustry industry, Long id);
 }

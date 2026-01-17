@@ -5,13 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import sopt.comfit.company.domain.Company;
-import sopt.comfit.company.domain.CompanyRepository;
-import sopt.comfit.company.domain.EScale;
-import sopt.comfit.company.dto.response.CompanyListResponseDto;
-import sopt.comfit.company.dto.response.CompanySearchListResponseDto;
-import sopt.comfit.company.dto.response.CompanySearchResponseDto;
-import sopt.comfit.company.dto.response.FeaturedCompanyResponseDto;
+import sopt.comfit.company.domain.*;
+import sopt.comfit.company.dto.response.*;
 import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.global.enums.EIndustry;
@@ -23,6 +18,7 @@ import sopt.comfit.user.domain.UserCompanyRepository;
 import sopt.comfit.user.domain.UserRepository;
 import sopt.comfit.user.exception.UserErrorCode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +26,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
     private final UserCompanyRepository userCompanyRepository;
+    private final CompanyIssueRepository companyIssueRepository;
     private final UserRepository userRepository;
 
     public CompanySearchListResponseDto searchCompanies(String keyword) {
@@ -171,7 +167,7 @@ public class CompanyService {
 
         List<Company> companies = companyRepository.findByIndustry(targetIndustry);
         Collections.shuffle(companies);
-        
+
         return companies.stream()
                 .limit(3)
                 .map(FeaturedCompanyResponseDto::from)
@@ -189,5 +185,43 @@ public class CompanyService {
             case 3 -> third != null ? third : (second != null ? second : first);
             default -> first != null ? first : (second != null ? second : third);
         };
+    }
+
+    @Transactional(readOnly = true)
+    public GetCompanyResponseDto getCompany(Long userId, Long companyId){
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
+
+        boolean isLiked = userCompanyRepository.existsByCompanyIdAndUserId(companyId, userId);
+
+        List<CompanyIssue> companyIssueList = companyIssueRepository.findByCompanyId(companyId);
+
+        return GetCompanyResponseDto.of(company, isLiked, companyIssueList);
+    }
+
+    @Transactional(readOnly = true)
+    public GetCompanyResponseDto getPublicCompany(Long companyId){
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
+
+        List<CompanyIssue> companyIssueList = companyIssueRepository.findByCompanyId(companyId);
+
+        return GetCompanyResponseDto.of(company, null, companyIssueList);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetSuggestionCompanyResponseDto> getSuggestionCompany(Long companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
+
+        List<Company> candidates = new ArrayList<>(companyRepository
+                .findByIndustryAndIdNot(company.getIndustry(), companyId));
+
+        Collections.shuffle(candidates);
+
+        return candidates.stream()
+                .limit(4)
+                .map(GetSuggestionCompanyResponseDto::from)
+                .toList();
     }
 }

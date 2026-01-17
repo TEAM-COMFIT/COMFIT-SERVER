@@ -9,5 +9,5 @@ import java.lang.annotation.*;
 @Documented
 @Parameter(hidden = true)
 public @interface LoginUser {
-    boolean nullable() default false;
+    boolean required() default true;
 }
