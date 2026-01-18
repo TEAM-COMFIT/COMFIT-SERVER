@@ -35,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         log.info(request.getHeader(Constants.PREFIX_AUTH));
         String token = HeaderUtil.refineHeader(request, Constants.PREFIX_AUTH, Constants.BEARER);
-
         Claims claim = jwtUtil.validateToken(token);
         log.info("claim: getUserId() = {}", claim.get(Constants.CLAIM_USER_ID, Long.class));
 
@@ -52,7 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticatedToken);
         SecurityContextHolder.setContext(securityContext);
-
         filterChain.doFilter(request, response);
     }
 

@@ -1,6 +1,7 @@
 package sopt.comfit.auth.kakao.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import sopt.comfit.user.domain.UserRepository;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KakaoAuthService {
 
     @Value("${kakao.client-id}") String clientId;
@@ -60,7 +62,6 @@ public class KakaoAuthService {
     }
 
     private LoginQueryDto getKakaoUserInfo(String accessToken) {
-
         WebClient webClient = WebClient.create("https://kapi.kakao.com");
 
         KakaoUserApiResponseDto response = webClient.get()
@@ -73,6 +74,7 @@ public class KakaoAuthService {
         if (response == null) {
             throw BaseException.type(AuthErrorCode.USERINFO_NOT_FOUND);
         }
+
         return authService.registerOrLogin(response);
     }
 }
