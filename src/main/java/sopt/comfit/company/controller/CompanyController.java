@@ -43,11 +43,12 @@ public class CompanyController implements CompanySwagger {
     public List<FeaturedCompanyResponseDto> getFeaturedCompanies(@LoginUser(required = false) Long userId,
                                                                  @RequestParam int rank) {
         if (userId == null) {
-            return companyService.getFeaturedCompaniesWithoutUser(rank);
+            return companyService.getFeaturedCompaniesWithoutUser();
         }
         return companyService.getFeaturedCompaniesWithUser(userId, rank);
     }
 
+    @Override
     public GetCompanyResponseDto getCompany(@LoginUser(required = false) Long userId ,
                                             @PathVariable Long companyId){
         if(userId == null) {

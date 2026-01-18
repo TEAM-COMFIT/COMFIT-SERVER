@@ -140,52 +140,20 @@ public class CompanyService {
         );
     }
 
-    public List<FeaturedCompanyResponseDto> getFeaturedCompaniesWithoutUser(int rank) {
-        List<Company> allCompanies = companyRepository.findAll();
-        Collections.shuffle(allCompanies);
-        return allCompanies.stream()
-                .limit(3)
-                .map(FeaturedCompanyResponseDto::from)
-                .collect(Collectors.toList());
+    public List<FeaturedCompanyResponseDto> getFeaturedCompaniesWithoutUser() {
+        List<Long> ids = companyRepository.findAllIds();
+        return getFeaturedCompany(ids);
     }
 
     public List<FeaturedCompanyResponseDto> getFeaturedCompaniesWithUser(Long userId, int rank) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
 
-        int normalizedRank = ((rank - 1) % 3) + 1;
-        EIndustry targetIndustry = getIndustryByRank(user, normalizedRank);
+        EIndustry targetIndustry = user.getIndustryByRank(rank);
 
-        if (targetIndustry == null) {
-            List<Company> allCompanies = companyRepository.findAll();
-            Collections.shuffle(allCompanies);
-            return allCompanies.stream()
-                    .limit(3)
-                    .map(FeaturedCompanyResponseDto::from)
-                    .collect(Collectors.toList());
-        }
-
-        List<Company> companies = companyRepository.findByIndustry(targetIndustry);
-        Collections.shuffle(companies);
-
-        return companies.stream()
-                .limit(3)
-                .map(FeaturedCompanyResponseDto::from)
-                .collect(Collectors.toList());
+        return getFeaturedCompany(companyRepository.findIdsByIndustry(targetIndustry));
     }
 
-    private EIndustry getIndustryByRank(User user, int rank) {
-        EIndustry first = user.getFirstIndustry();
-        EIndustry second = user.getSecondIndustry();
-        EIndustry third = user.getThirdIndustry();
-
-        return switch (rank) {
-            case 1 -> first != null ? first : (second != null ? second : third);
-            case 2 -> second != null ? second : (first != null ? first : third);
-            case 3 -> third != null ? third : (second != null ? second : first);
-            default -> first != null ? first : (second != null ? second : third);
-        };
-    }
 
     @Transactional(readOnly = true)
     public GetCompanyResponseDto getCompany(Long userId, Long companyId){
@@ -223,5 +191,14 @@ public class CompanyService {
                 .limit(4)
                 .map(GetSuggestionCompanyResponseDto::from)
                 .toList();
+    }
+
+    private List<FeaturedCompanyResponseDto> getFeaturedCompany(List<Long> ids){
+        Collections.shuffle(ids);
+        List<Long> randomIds = ids.subList(0, Math.min(3, ids.size()));
+
+        return companyRepository.findAllById(randomIds).stream()
+                .map(FeaturedCompanyResponseDto::from)
+                .collect(Collectors.toList());
     }
 }

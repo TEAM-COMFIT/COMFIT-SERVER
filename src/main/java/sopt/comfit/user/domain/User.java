@@ -10,6 +10,9 @@ import sopt.comfit.global.base.BaseTimeEntity;
 import sopt.comfit.global.enums.EIndustry;
 import sopt.comfit.university.domain.University;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -154,5 +157,19 @@ public class User extends BaseTimeEntity {
         this.secondJob = EJob.from(secondJob);
         this.thirdJob = EJob.from(thirdJob);
         this.university = university;
+    }
+
+    public EIndustry getIndustryByRank(int rank) {
+        List<EIndustry> industries = getAvailableIndustries();
+        int index = (rank - 1) % industries.size();
+        return industries.get(index);
+    }
+
+    private List<EIndustry> getAvailableIndustries() {
+        List<EIndustry> list = new ArrayList<>();
+        list.add(firstIndustry);
+        if (secondIndustry != null) list.add(secondIndustry);
+        if (thirdIndustry != null) list.add(thirdIndustry);
+        return list;
     }
 }
