@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.university.domain.University;
 import sopt.comfit.university.domain.UniversityRepository;
-import sopt.comfit.university.dto.response.UniversityItemDto;
-import sopt.comfit.university.dto.response.UniversitySearchResponseDto;
+import sopt.comfit.university.dto.response.SearchUniversityResponseDto;
 
 import java.util.List;
 
@@ -19,13 +18,11 @@ public class UniversityService {
     private final UniversityRepository universityRepository;
 
     @Transactional(readOnly = true)
-    public UniversitySearchResponseDto searchUniversities(String keyword) {
-        List<University> universities = universityRepository.findByNameContainingIgnoreCase(keyword);
-        
-        List<UniversityItemDto> universityList = universities.stream()
-                .map(UniversityItemDto::from)
+    public List<SearchUniversityResponseDto> searchUniversities(String keyword) {
+
+        return universityRepository.searchByKeyword(keyword)
+                .stream().map(SearchUniversityResponseDto::from)
                 .toList();
 
-        return UniversitySearchResponseDto.from(universityList);
     }
 }

@@ -2,12 +2,12 @@ package sopt.comfit.university.dto.response;
 
 import sopt.comfit.university.domain.University;
 
-public record UniversityItemDto(
+public record SearchUniversityResponseDto(
         Long id,
         String name
 ) {
-    public static UniversityItemDto from(University university) {
-        return new UniversityItemDto(
+    public static SearchUniversityResponseDto from(University university) {
+        return new SearchUniversityResponseDto(
                 university.getId(),
                 university.getName()
         );
