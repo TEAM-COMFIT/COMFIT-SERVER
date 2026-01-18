@@ -60,14 +60,15 @@ public class AIReportService {
 
         CreateReportAiResponseDto response = openAiClient
                 .createReport(CreateReportAiRequestDto
-                        .from(AIReportPromptBuilder.build(company, experience, companyIssueList)));
+                        .from(AIReportPromptBuilder
+                                .build(company, experience, command.jobDescription(), companyIssueList)));
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("OpenAI API 호출 완료 - companyId: {}, experienceId: {}, duration: {}ms, responseLength: {}",
                 company.getId(), experience.getId(), duration, response.getContent().length());
 
 
-        AIReport aiReport = parseAndSave(response.getContent(), experience, company);
+        AIReport aiReport = parseAndSave(response.getContent(), experience, company, command.jobDescription());
 
         log.info("AI 분석 완료 - userId: {}, reportId: {}, companyId: {}, experienceId: {}",
                 command.userId(), aiReport.getId(), company.getId(), experience.getId());
@@ -98,7 +99,7 @@ public class AIReportService {
 
     @Transactional(readOnly = true)
     public GetReportExperienceResponseDto getReportExperience(Long userId) {
-        List<Experience> experiences = experienceRepository.findByUserId(userId);
+        List<Experience> experiences = experienceRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId);
 
         return GetReportExperienceResponseDto
                 .of(experiences.stream().map(GetReportExperienceResponseDto.item::from).toList());
@@ -112,7 +113,7 @@ public class AIReportService {
 
     }
 
-    private AIReport parseAndSave(String content, Experience experience, Company company) {
+    private AIReport parseAndSave(String content, Experience experience, Company company, String jobDescription) {
         log.info("응답 파싱 시작 - companyId: {}, experienceId: {}, contentLength: {}",
                 company.getId(), experience.getId(), content.length());
         try {
@@ -132,6 +133,7 @@ public class AIReportService {
                     json.get("appealPoint").size());
 
             AIReport report = AIReport.create(
+                    jobDescription,
                     json.get("perspectives").toString(),
                     json.get("density").toString(),
                     json.get("appealPoint").toString(),

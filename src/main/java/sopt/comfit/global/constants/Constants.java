@@ -10,6 +10,8 @@ public class Constants {
     public static final String CLAIM_USER_ID = "userId";
     public static final String CLAIM_USER_ROLE = "role";
     public static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+    public static final String BASE_URL =
+            "https://bucket-com-fit-server.s3.ap-northeast-2.amazonaws.com/";
 
     public static List<String> NO_NEED_AUTH = List.of(
             "/swagger",
@@ -21,6 +23,9 @@ public class Constants {
             "/api/health",
             "/api/health-check",
             "/api/v1/login",
-            "/actuator/**"
+            "/api/v1/re-issued",
+            "/actuator/**",
+            "/oauth/kakao/callback",
+            "/api/v1/companies/**"
     );
 }
