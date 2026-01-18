@@ -17,4 +17,9 @@ public interface CompanyRepository extends JpaRepository<Company, Long>, Company
     @Query("SELECT c.id FROM Company c")
     List<Long> findAllIds();
 
+    @Query("SELECT c FROM Company c " +
+            "WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "ORDER BY CASE WHEN LOWER(c.name) LIKE LOWER(CONCAT(:keyword, '%')) THEN 0 ELSE 1 END, " +
+            "LENGTH(c.name) ASC")
+    List<Company> searchByKeyword(@Param("keyword") String keyword);
 }

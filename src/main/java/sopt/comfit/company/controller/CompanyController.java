@@ -1,20 +1,15 @@
 package sopt.comfit.company.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 import sopt.comfit.company.domain.EScale;
-import sopt.comfit.company.dto.response.FeaturedCompanyResponseDto;
-import sopt.comfit.company.dto.response.GetCompanyListResponseDto;
-import sopt.comfit.company.dto.response.GetCompanyResponseDto;
-import sopt.comfit.company.dto.response.GetSuggestionCompanyResponseDto;
+import sopt.comfit.company.dto.response.*;
 import sopt.comfit.company.service.CompanyService;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.global.dto.PageDto;
@@ -46,6 +41,12 @@ public class CompanyController implements CompanySwagger {
         return companyService.getCompanyList(keyword, industryEnum, scaleEnum, sortEnum, isRecruited, pageable);
     }
 
+    @GetMapping("/search")
+    @SecurityRequirement(name= "JWT")
+    public List<CompanySearchResponseDto> getCompanySearchList(@RequestParam String keyword){
+
+        return companyService.getCompanySearchList(keyword);
+    }
 
 
     @Override

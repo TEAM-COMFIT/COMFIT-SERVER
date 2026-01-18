@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import sopt.comfit.company.domain.*;
-import sopt.comfit.company.dto.response.FeaturedCompanyResponseDto;
-import sopt.comfit.company.dto.response.GetCompanyListResponseDto;
-import sopt.comfit.company.dto.response.GetCompanyResponseDto;
-import sopt.comfit.company.dto.response.GetSuggestionCompanyResponseDto;
+import sopt.comfit.company.dto.response.*;
 import sopt.comfit.company.exception.CompanyErrorCode;
 import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.global.enums.EIndustry;
@@ -49,6 +46,13 @@ public class CompanyService {
         ));
     }
 
+    @Transactional(readOnly = true)
+    public List<CompanySearchResponseDto> getCompanySearchList(String keyword){
+
+        return companyRepository.searchByKeyword(keyword).stream()
+                .map(CompanySearchResponseDto::from)
+                .collect(Collectors.toList());
+    }
 
 
     @Transactional(readOnly = true)
