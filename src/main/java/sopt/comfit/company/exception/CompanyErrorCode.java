@@ -9,7 +9,8 @@ import sopt.comfit.global.exception.ErrorCode;
 @RequiredArgsConstructor
 public enum CompanyErrorCode implements ErrorCode {
 
-    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "COMPANY_404_001", "해당하는 회사를 찾을 수 없습니다");
+    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "COMPANY_404_001", "해당하는 회사를 찾을 수 없습니다"),
+    INVALID_KEYWORD(HttpStatus.BAD_REQUEST, "COMPANY_400_001", "올바르지않은 값입니다");
 
     private final HttpStatus status;
     private final String prefix;
