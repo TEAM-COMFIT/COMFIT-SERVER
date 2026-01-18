@@ -2,12 +2,12 @@ package sopt.comfit.company.dto.response;
 
 import sopt.comfit.company.domain.Company;
 
-public record CompanySearchResponseDto(
+public record GetCompanySearchResponseDto(
         Long id,
         String name
 ) {
-    public static CompanySearchResponseDto from(Company company) {
-        return new CompanySearchResponseDto(
+    public static GetCompanySearchResponseDto from(Company company) {
+        return new GetCompanySearchResponseDto(
                 company.getId(),
                 company.getName()
         );

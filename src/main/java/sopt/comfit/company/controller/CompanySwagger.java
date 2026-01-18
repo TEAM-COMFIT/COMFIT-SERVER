@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import sopt.comfit.company.dto.response.FeaturedCompanyResponseDto;
-import sopt.comfit.company.dto.response.GetCompanyListResponseDto;
-import sopt.comfit.company.dto.response.GetCompanyResponseDto;
-import sopt.comfit.company.dto.response.GetSuggestionCompanyResponseDto;
+import sopt.comfit.company.dto.response.*;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.global.dto.CommonApiResponse;
 import sopt.comfit.global.dto.CustomErrorResponse;
@@ -52,6 +49,26 @@ public interface CompanySwagger {
                                                                   @RequestParam(required = false) String sort,
                                                                   @RequestParam(defaultValue = "1") int page,
                                                                   @RequestParam(required = false) Boolean isRecruited);
+    @Operation(
+            summary = "기업 검색 API",
+            description = "기업검색 API 입니다"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "기업 검색 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CommonApiResponse.class))),
+
+            @ApiResponse(responseCode = "403", description = "권한 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "헤더값 오류",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomErrorResponse.class)))
+    })
+    @GetMapping("/search")
+    @SecurityRequirement(name= "JWT")
+    List<GetCompanySearchResponseDto> getCompanySearchList(@RequestParam String keyword);
+
 
     @Operation(
             summary = "주요 기업 조회 API",

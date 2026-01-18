@@ -41,9 +41,8 @@ public class CompanyController implements CompanySwagger {
         return companyService.getCompanyList(keyword, industryEnum, scaleEnum, sortEnum, isRecruited, pageable);
     }
 
-    @GetMapping("/search")
-    @SecurityRequirement(name= "JWT")
-    public List<CompanySearchResponseDto> getCompanySearchList(@RequestParam String keyword){
+    @Override
+    public List<GetCompanySearchResponseDto> getCompanySearchList(@RequestParam String keyword){
 
         return companyService.getCompanySearchList(keyword);
     }

@@ -1,11 +1,9 @@
 package sopt.comfit.company.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import sopt.comfit.company.domain.*;
 import sopt.comfit.company.dto.response.*;
 import sopt.comfit.company.exception.CompanyErrorCode;
@@ -47,10 +45,10 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
-    public List<CompanySearchResponseDto> getCompanySearchList(String keyword){
+    public List<GetCompanySearchResponseDto> getCompanySearchList(String keyword){
 
         return companyRepository.searchByKeyword(keyword).stream()
-                .map(CompanySearchResponseDto::from)
+                .map(GetCompanySearchResponseDto::from)
                 .collect(Collectors.toList());
     }
 
