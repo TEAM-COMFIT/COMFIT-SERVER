@@ -25,7 +25,6 @@ public class Constants {
             "/api/v1/login",
             "/api/v1/re-issued",
             "/actuator/**",
-            "/oauth/kakao/callback",
-            "/api/v1/companies/**"
+            "/api/v1/oauth/kakao/callback"
     );
 }

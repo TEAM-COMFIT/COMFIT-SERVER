@@ -3,6 +3,7 @@ package sopt.comfit.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/on-boarding")
+    @SecurityRequirement(name = "JWT")
     public void addUserInfo(
             @LoginUser Long userId,
             @RequestBody @Valid OnBoardingRequestDTO request
@@ -64,6 +66,7 @@ public class AuthController {
             HttpServletResponse response
     ) {
         LoginQueryDto loginQueryDto = kakaoAuthService.getKakaoUserInfoByCode(code);
+        response.addCookie(new Cookie("refreshToken", loginQueryDto.jwtDto().refreshToken()));
         return LoginResponseDto.of(loginQueryDto);
     }
 }
