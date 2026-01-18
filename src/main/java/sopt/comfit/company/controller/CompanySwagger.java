@@ -11,20 +11,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import sopt.comfit.company.dto.response.FeaturedCompanyResponseDto;
+import sopt.comfit.company.dto.response.GetCompanyListResponseDto;
 import sopt.comfit.company.dto.response.GetCompanyResponseDto;
 import sopt.comfit.company.dto.response.GetSuggestionCompanyResponseDto;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.global.dto.CommonApiResponse;
 import sopt.comfit.global.dto.CustomErrorResponse;
+import sopt.comfit.global.dto.PageDto;
 
 import java.util.List;
 
 @Tag(name = "Company", description = "기업 관련 API")
 public interface CompanySwagger {
 
+
     @Operation(
             summary = "기업 검색/조회 API",
-            description = "keyword만 있으면 기업 검색 API (id, name만 반환), 다른 필터가 있으면 일반 기업 조회 API입니다."
+            description = "기업검색/조회 API 입니다"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "기업 검색/조회 성공",
@@ -43,18 +46,18 @@ public interface CompanySwagger {
     })
     @GetMapping
     @SecurityRequirement(name = "JWT")
-    Object getCompanyList(@LoginUser Long userId,
-                          @RequestParam(required = false) String keyword,
-                          @RequestParam(required = false) String industry,
-                          @RequestParam(required = false) String scale,
-                          @RequestParam(required = false) String sort,
-                          @RequestParam(defaultValue = "1") int page,
-                          @RequestParam(required = false) Boolean isRecruited);
+    PageDto<GetCompanyListResponseDto> getCompanyList(@RequestParam(required = false) String keyword,
+                                                                  @RequestParam(required = false) String industry,
+                                                                  @RequestParam(required = false) String scale,
+                                                                  @RequestParam(required = false) String sort,
+                                                                  @RequestParam(defaultValue = "1") int page,
+                                                                  @RequestParam(required = false) Boolean isRecruited);
 
     @Operation(
             summary = "주요 기업 조회 API",
             description = "주요 기업 조회 API입니다. 토큰이 없으면 랜덤 3개, 토큰이 있으면 rank에 따라 사용자의 관심 산업군 기업을 반환합니다."
     )
+    @SecurityRequirement(name = "JWT")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "주요 기업 조회 성공",
                     content = @Content(mediaType = "application/json",

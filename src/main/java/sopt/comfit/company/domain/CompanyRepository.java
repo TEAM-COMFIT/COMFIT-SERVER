@@ -7,8 +7,7 @@ import sopt.comfit.global.enums.EIndustry;
 
 import java.util.List;
 
-public interface CompanyRepository extends JpaRepository<Company, Long> {
-    List<Company> findByNameContaining(String keyword);
+public interface CompanyRepository extends JpaRepository<Company, Long>, CompanyRepositoryCustom {
 
     @Query("SELECT c.id FROM Company c WHERE c.industry = :industry")
     List<Long> findIdsByIndustry(@Param("industry") EIndustry industry);
