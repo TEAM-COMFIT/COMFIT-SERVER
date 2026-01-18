@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
 import sopt.comfit.auth.dto.LoginResponseDto;
+import sopt.comfit.auth.dto.ReIssueTokenResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
 import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
@@ -53,7 +54,7 @@ public class AuthService {
         refreshTokenRepository.deleteById(userId.toString());
     }
 
-    public JwtDto reissueToken(String refreshTokenStr) {
+    public ReIssueTokenResponseDto reissueToken(String refreshTokenStr) {
 
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenStr)
                 .orElseThrow(() -> {
@@ -73,12 +74,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
 
-        JwtDto newJwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
-
-        refreshTokenRepository.save(RefreshToken.issueRefreshToken(user.getId(), newJwtDto.refreshToken()));
-
-        log.info("토큰 재발급 완료. userId: {}", userId);
-        return newJwtDto;
+        return ReIssueTokenResponseDto.from(jwtUtil.generateAccessToken(userId, user.getRole()));
     }
 
     @Transactional
