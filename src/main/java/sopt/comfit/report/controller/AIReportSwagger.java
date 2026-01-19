@@ -30,7 +30,7 @@ public interface AIReportSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "AI 응답 생성 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = AIReportResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -59,7 +59,7 @@ public interface AIReportSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "AI Report 리스트 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = PageDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -80,7 +80,7 @@ public interface AIReportSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "AI Report 단일 조회",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = AIReportResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -104,7 +104,7 @@ public interface AIReportSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "리스트 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = GetReportExperienceResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -125,7 +125,7 @@ public interface AIReportSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "기업 단일 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = GetReportCompanyResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",

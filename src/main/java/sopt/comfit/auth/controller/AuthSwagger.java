@@ -28,7 +28,7 @@ public interface AuthSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "경험 생성 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = ReIssueTokenResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -73,7 +73,7 @@ public interface AuthSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "입력 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = LoginResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
