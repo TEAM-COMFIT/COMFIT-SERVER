@@ -3,6 +3,7 @@ package sopt.comfit.global.interceptor.pre;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,8 +13,11 @@ public class UserInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("authentication:{}",authentication.getName());
-        request.setAttribute("USER_ID", Long.valueOf(authentication.getName()));
-        return HandlerInterceptor.super.preHandle(request, response, handler);
+        log.info("authentication:{}", authentication.getName());
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            request.setAttribute("USER_ID", Long.valueOf(authentication.getName()));
+        }
+
+        return true;
     }
 }
