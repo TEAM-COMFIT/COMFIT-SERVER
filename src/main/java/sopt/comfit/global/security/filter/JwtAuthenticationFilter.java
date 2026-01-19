@@ -33,7 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        log.info(request.getHeader(Constants.PREFIX_AUTH));
+
+
+        String header = request.getHeader(Constants.PREFIX_AUTH);
+        log.info("header:{}",header);
+
+        if (header == null || !header.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String token = HeaderUtil.refineHeader(request, Constants.PREFIX_AUTH, Constants.BEARER);
         Claims claim = jwtUtil.validateToken(token);
         log.info("claim: getUserId() = {}", claim.get(Constants.CLAIM_USER_ID, Long.class));
@@ -54,10 +62,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return Constants.NO_NEED_AUTH.stream()
-                .anyMatch(patter -> Constants.PATH_MATCHER.match(patter, request.getRequestURI()));
-
-    }
 }

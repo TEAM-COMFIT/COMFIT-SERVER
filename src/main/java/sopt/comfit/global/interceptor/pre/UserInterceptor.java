@@ -12,6 +12,7 @@ public class UserInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("authentication:{}",authentication.getName());
         request.setAttribute("USER_ID", Long.valueOf(authentication.getName()));
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }

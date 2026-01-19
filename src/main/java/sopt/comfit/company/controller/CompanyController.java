@@ -1,13 +1,12 @@
 package sopt.comfit.company.controller;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import sopt.comfit.company.domain.EScale;
 import sopt.comfit.company.dto.response.*;
 import sopt.comfit.company.service.CompanyService;
@@ -16,6 +15,7 @@ import sopt.comfit.global.dto.PageDto;
 import sopt.comfit.global.enums.EIndustry;
 import sopt.comfit.global.enums.ESort;
 
+import java.util.List;
 @RestController
 @RequestMapping("/api/v1/companies")
 @RequiredArgsConstructor
