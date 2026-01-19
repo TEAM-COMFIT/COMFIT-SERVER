@@ -28,6 +28,6 @@ public class Constants {
             "/api/v1/oauth/kakao/callback",
             "/favicon.ico",
             "/.well-known/**",
-            "/api/v1/companies"
+            "/api/v1/companies/**"
     );
 }
