@@ -27,6 +27,7 @@ public class Constants {
             "/actuator/**",
             "/api/v1/oauth/kakao/callback",
             "/favicon.ico",
-            "/.well-known/**"
+            "/.well-known/**",
+            "/api/v1/companies"
     );
 }
