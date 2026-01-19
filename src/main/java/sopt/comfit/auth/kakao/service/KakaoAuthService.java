@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.kakao.dto.KakaoTokenResponseDto;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
@@ -38,12 +40,13 @@ public class KakaoAuthService {
     }
 
     private String getKakaoAccessToken(String code) {
-        WebClient webClient = WebClient.create("https://kauth.kakao.com");
         log.info("=== 카카오 토큰 요청 ===");
         log.info("code: {}", code);
         log.info("redirectUri: {}", redirectUri);
 
-        KakaoTokenResponseDto response = webClient.post()
+        WebClient webClient = WebClient.create("https://kauth.kakao.com");
+
+        return webClient.post()
                 .uri("/oauth/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
@@ -52,16 +55,14 @@ public class KakaoAuthService {
                         .with("redirect_uri", redirectUri)
                         .with("code", code))
                 .retrieve()
+                .onStatus(HttpStatusCode::isError, response ->
+                        response.bodyToMono(String.class)
+                                .doOnNext(body -> log.error("카카오 에러 응답: {}", body))
+                                .flatMap(body -> Mono.error(new RuntimeException("Kakao error: " + body)))
+                )
                 .bodyToMono(KakaoTokenResponseDto.class)
-                .block();
-
-        System.out.println("response = " + response);
-
-        if (response == null || response.access_token() == null) {
-            throw BaseException.type(AuthErrorCode.KAKAO_ACCESS_TOKEN_FAIL);
-        }
-
-        return response.access_token();
+                .block()
+                .access_token();
     }
 
     private LoginQueryDto getKakaoUserInfo(String accessToken) {
