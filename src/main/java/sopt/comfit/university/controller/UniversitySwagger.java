@@ -26,7 +26,7 @@ public interface UniversitySwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "대학교 검색 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = List.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",

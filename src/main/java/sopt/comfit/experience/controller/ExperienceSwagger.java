@@ -29,7 +29,7 @@ public interface ExperienceSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "경험 생성 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = Long.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -78,7 +78,7 @@ public interface ExperienceSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "경험 세부 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = GetExperienceResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -103,7 +103,7 @@ public interface ExperienceSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "경험 수정 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = Long.class))),
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CustomErrorResponse.class))),
@@ -129,7 +129,9 @@ public interface ExperienceSwagger {
             description = "경험을 삭제하는 API입니다"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "경험 삭제 성공"),
+            @ApiResponse(responseCode = "204", description = "경험 삭제 성공",
+                    content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CommonApiResponse.class))),
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = CustomErrorResponse.class))),

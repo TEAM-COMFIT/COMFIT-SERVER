@@ -29,7 +29,7 @@ public interface CompanySwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "기업 검색/조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = PageDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -56,7 +56,7 @@ public interface CompanySwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "기업 검색 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = List.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -78,7 +78,7 @@ public interface CompanySwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "주요 기업 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = List.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -101,7 +101,7 @@ public interface CompanySwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "상세 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = GetCompanyResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -125,7 +125,7 @@ public interface CompanySwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "추천 기업 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = List.class))),
 
             @ApiResponse(responseCode = "404", description = "기업 id 값 오류",
                     content = @Content(mediaType = "application/json",
