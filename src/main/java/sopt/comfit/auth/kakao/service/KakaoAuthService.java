@@ -39,6 +39,9 @@ public class KakaoAuthService {
 
     private String getKakaoAccessToken(String code) {
         WebClient webClient = WebClient.create("https://kauth.kakao.com");
+        log.info("=== 카카오 토큰 요청 ===");
+        log.info("code: {}", code);
+        log.info("redirectUri: {}", redirectUri);
 
         KakaoTokenResponseDto response = webClient.post()
                 .uri("/oauth/token")
