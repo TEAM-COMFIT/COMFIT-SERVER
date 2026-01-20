@@ -140,22 +140,22 @@ public class User extends BaseTimeEntity {
     }
 
     public void registerRequiredInfo(
-            String educationLevel,
-            String firstIndustry,
-            String secondIndustry,
-            String thirdIndustry,
-            String firstJob,
-            String secondJob,
-            String thirdJob,
+            EEducationLevel educationLevel,
+            EIndustry firstIndustry,
+            EIndustry secondIndustry,
+            EIndustry thirdIndustry,
+            EJob firstJob,
+            EJob secondJob,
+            EJob thirdJob,
             University university
     ) {
-        this.educationLevel = EEducationLevel.from(educationLevel);
-        this.firstIndustry = EIndustry.from(firstIndustry);
-        this.secondIndustry = EIndustry.from(secondIndustry);
-        this.thirdIndustry = EIndustry.from(thirdIndustry);
-        this.firstJob = EJob.from(firstJob);
-        this.secondJob = EJob.from(secondJob);
-        this.thirdJob = EJob.from(thirdJob);
+        this.educationLevel = educationLevel;
+        this.firstIndustry = firstIndustry;
+        this.secondIndustry = secondIndustry;
+        this.thirdIndustry = thirdIndustry;
+        this.firstJob = firstJob;
+        this.secondJob = secondJob;
+        this.thirdJob = thirdJob;
         this.university = university;
     }
 
