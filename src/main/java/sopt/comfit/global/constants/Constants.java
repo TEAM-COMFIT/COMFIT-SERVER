@@ -23,6 +23,28 @@ public class Constants {
             "/api/health",
             "/api/health-check",
             "/api/v1/login",
-            "/actuator/**"
+            "/api/v1/re-issued",
+            "/actuator/**",
+            "/api/v1/oauth/kakao/callback",
+            "/favicon.ico",
+            "/.well-known/**",
+            "/api/v1/companies/**"
+    );
+
+    public static List<String> NO_NEED_AUTH_INTERCEPTOR = List.of(
+            "/swagger",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/api-docs",
+            "/api-docs/**",
+            "/v3/api-docs/**",
+            "/api/health",
+            "/api/health-check",
+            "/api/v1/login",
+            "/api/v1/re-issued",
+            "/actuator/**",
+            "/api/v1/oauth/kakao/callback",
+            "/favicon.ico",
+            "/.well-known/**"
     );
 }

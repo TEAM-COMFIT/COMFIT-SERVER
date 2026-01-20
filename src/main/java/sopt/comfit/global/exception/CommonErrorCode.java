@@ -31,7 +31,9 @@ public enum CommonErrorCode implements ErrorCode {
     AUTHENTICATION_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "인증된 사용자 정보를 찾을 수 없습니다"),
 
     // ===== 서버 에러 (5xx) =====
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_001", "서버 내부 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_001", "서버 내부 오류가 발생했습니다."),
+    EINDUSTRY_NOT_FOUND(HttpStatus.NOT_FOUND, "EINDUSTRY_404_001", "존재하지 않는 산업군입니다");
+
 
 
     private final HttpStatus status;

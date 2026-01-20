@@ -23,8 +23,8 @@ public class CompanyIssue {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "source", nullable = false)
-    private String source;
+    @Column(name = "source", nullable = false, columnDefinition = "TEXT")
+    private String issueURL;
 
     @Column(name = "issue_date", nullable = false)
     private LocalDate issueDate;

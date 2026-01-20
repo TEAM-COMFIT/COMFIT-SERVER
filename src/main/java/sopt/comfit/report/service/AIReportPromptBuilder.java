@@ -196,7 +196,7 @@ public class AIReportPromptBuilder {
         return issues.stream()
                 .map(issue -> "· %s (%s, %s)".formatted(
                         issue.getTitle(),
-                        issue.getSource(),
+                        issue.getIssueURL(),
                         issue.getIssueDate()
                 ))
                 .collect(Collectors.joining("\n"));
@@ -205,6 +205,5 @@ public class AIReportPromptBuilder {
     private static String safeString(String value){
         return value != null ? value : "정보 없음";
     }
-
 }
 

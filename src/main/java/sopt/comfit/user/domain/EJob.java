@@ -3,6 +3,8 @@ package sopt.comfit.user.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum EJob {
@@ -20,4 +22,10 @@ public enum EJob {
     GLOBAL_MARKETING("글로벌마케팅");
 
     private final String description;
+
+    public static EJob from(String value) {
+        return Arrays.stream(values())
+                .filter(eJob -> eJob.getDescription().equals(value))
+                .findFirst().orElseGet(null);
+    }
 }

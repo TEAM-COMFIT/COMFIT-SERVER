@@ -3,6 +3,8 @@ package sopt.comfit.user.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum EEducationLevel {
@@ -15,4 +17,10 @@ public enum EEducationLevel {
     DOCTOR("박사");
 
     private final String description;
+
+    public static EEducationLevel from(String value) {
+        return Arrays.stream(values())
+                .filter(eEducationLevel -> eEducationLevel.getDescription().equalsIgnoreCase(value))
+                .findFirst().orElseGet(null);
+    }
 }

@@ -20,10 +20,15 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter,
+                                  ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        LoginUser annotation = parameter.getParameterAnnotation(LoginUser.class);
         final Object userId = webRequest.getAttribute("USER_ID", NativeWebRequest.SCOPE_REQUEST);
         if(userId == null) {
-            throw BaseException.type(CommonErrorCode.INVALID_HEADER_VALUE);
+            if (annotation.required())
+                throw BaseException.type(CommonErrorCode.INVALID_HEADER_VALUE);
+            return null;
         }
         return userId;
     }

@@ -10,6 +10,7 @@ import sopt.comfit.experience.domain.EType;
 import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.experience.domain.ExperienceRepository;
 import sopt.comfit.experience.dto.command.CreateExperienceCommandDto;
+import sopt.comfit.experience.dto.command.UpdateDefaultCommandDto;
 import sopt.comfit.experience.dto.command.UpdateExperienceCommandDto;
 import sopt.comfit.experience.dto.response.GetExperienceResponseDto;
 import sopt.comfit.experience.dto.response.GetSummaryExperienceResponseDto;
@@ -59,8 +60,8 @@ public class ExperienceService {
     public PageDto<GetSummaryExperienceResponseDto> getSummaryExperienceList(Long userId, EType type, Pageable pageable) {
 
         Page<Experience> experiences = (type == null)
-                ? experienceRepository.findByUserId(userId, pageable)
-                : experienceRepository.findByUserIdAndType(userId, type, pageable);
+                ? experienceRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId, pageable)
+                : experienceRepository.findByUserIdAndTypeOrderByIsDefaultDescCreatedAtDesc(userId, type, pageable);
 
         return PageDto.from(experiences.map(GetSummaryExperienceResponseDto::from));
     }
@@ -107,8 +108,27 @@ public class ExperienceService {
         log.info("경험 삭제 완료 - userId: {}, experienceId: {}", userId, experienceId);
     }
 
+    @Transactional
+    public void updateDefault(UpdateDefaultCommandDto command){
+        Experience experience = experienceRepository.findByIdAndUserId(command.experienceId(), command.userId())
+                .orElseThrow(() -> BaseException.type(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+        if(experience.isDefault()){
+            experience.cancelDefault();
+            log.debug("기본 경험 해제 experienceId: {}", experience.getId());
+            return;
+        }
+
+        cancelExistingDefault(command.userId());
+
+        experience.activateDefault();
+        log.debug("기본 경험 활성화 experienceId: {}", experience.getId());
+    }
+
     private void cancelExistingDefault(Long userId) {
         experienceRepository.findByUserIdAndIsDefaultTrue(userId)
-                .ifPresent(Experience::cancelDefault);
+                .ifPresent(experience -> {
+                    log.debug("기존 기본 경험 해제 experienceId: {}", experience.getId());
+                    experience.cancelDefault();});
     }
 }

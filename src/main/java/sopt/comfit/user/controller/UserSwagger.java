@@ -27,7 +27,7 @@ public interface UserSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "프로필 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = GetMeResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -51,7 +51,7 @@ public interface UserSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "관심 기업 북마크 추가 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = Long.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -111,7 +111,7 @@ public interface UserSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "북마크 기업 리스트 조회 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommonApiResponse.class))),
+                            schema = @Schema(implementation = PageDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",

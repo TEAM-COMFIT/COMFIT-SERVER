@@ -67,4 +67,8 @@ public class JwtUtil implements InitializingBean {
                 generateToken(id, role, refreshExpiration)
         );
     }
+
+    public String generateAccessToken(Long id, ERole role) {
+        return generateToken(id, role, accessExpiration);
+    }
 }
