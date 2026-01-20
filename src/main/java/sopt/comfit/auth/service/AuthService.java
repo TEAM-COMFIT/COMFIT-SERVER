@@ -112,6 +112,6 @@ public class AuthService {
         );
 
         JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
-        return LoginQueryDto.of(user.getId(), isNew, jwtDto);
+        return LoginQueryDto.of(user.getId(), isNew, user.getName(), jwtDto);
     }
 }
