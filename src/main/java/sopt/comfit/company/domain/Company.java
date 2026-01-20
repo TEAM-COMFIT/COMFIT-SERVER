@@ -22,7 +22,7 @@ public class Company extends BaseTimeEntity {
     @Column(name = "summary", nullable = false)
     private String summary;
 
-    @Column(name = "talent_profile", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "talent_profile", columnDefinition = "TEXT")
     private String talentProfile;
 
     @Column(name = "scale", nullable = false)
