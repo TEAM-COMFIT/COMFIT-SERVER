@@ -27,7 +27,7 @@ public enum EIndustry {
         return Arrays.stream(values())
                 .filter(eIndustry -> eIndustry.getCode().equals(value))
                 .findFirst().orElseThrow(
-                        () -> BaseException.type(CommonErrorCode.EINDUSTRY_NOT_FOUND)
+                        () -> BaseException.type(CommonErrorCode.INDUSTRY_NOT_FOUND)
                 );
     }
 }
