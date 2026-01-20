@@ -17,11 +17,9 @@ public record OnBoardingRequestDTO (
         @Schema(example = "IT")
         EIndustry firstIndustry,
 
-        @NotNull
         @Schema(example = "MEDIA_CONTENTS")
         EIndustry secondIndustry,
 
-        @NotNull
         @Schema(example = "RETAIL")
         EIndustry thirdIndustry,
 
@@ -29,11 +27,9 @@ public record OnBoardingRequestDTO (
         @Schema(example = "MARKETING_STRATEGY")
         EJob firstJob,
 
-        @NotNull
         @Schema(example = "BRAND_MARKETING")
         EJob secondJob,
 
-        @NotNull
         @Schema(example = "DIGITAL_MARKETING")
         EJob thirdJob,
 
