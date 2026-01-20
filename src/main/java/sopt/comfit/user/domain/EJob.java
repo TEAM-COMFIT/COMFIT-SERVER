@@ -13,7 +13,7 @@ public enum EJob {
     BRAND_MARKETING("브랜드마케팅"),
     DIGITAL_MARKETING("디지털마케팅"),
     CONTENT_MARKETING("콘텐츠마케팅"),
-    VIRAL_INFLUENCER_MARKETING("바이럴/인플루언서마케팅"),
+    VIRAL_MARKETING("바이럴마케팅"),
     PERFORMANCE_MARKETING("퍼포먼스마케팅"),
     B2B_MARKETING("B2B마케팅"),
     CRM_MARKETING("CRM마케팅"),
