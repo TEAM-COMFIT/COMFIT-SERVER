@@ -22,6 +22,7 @@ public enum EEducationLevel {
         return Arrays.stream(values())
                 .filter(educationLevel -> educationLevel.getCode().equals(value))
                 .findFirst().orElseThrow(
-                        () -> BaseException.type(CommonErrorCode.JOB_NOT_FOUND)
+                        () -> BaseException.type(CommonErrorCode.EDUCATION_LEVEL_NOT_FOUND)
                 );
     }
+}
