@@ -3,6 +3,7 @@ package sopt.comfit.global.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import sopt.comfit.user.domain.EEducationLevel;
 
 @Getter
 @RequiredArgsConstructor
@@ -33,8 +34,8 @@ public enum CommonErrorCode implements ErrorCode {
     // ===== 서버 에러 (5xx) =====
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_001", "서버 내부 오류가 발생했습니다."),
     INDUSTRY_NOT_FOUND(HttpStatus.NOT_FOUND, "ENUM_404_001", "존재하지 않는 산업군입니다"),
-    JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "ENUM_404_002", "존재하지 않는 직업군입니다");
-
+    JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "ENUM_404_002", "존재하지 않는 직업군입니다"),
+    EDUCATION_LEVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "ENUM_404_003", "존재하지 않는 학력입니다");
 
     private final HttpStatus status;
     private final String prefix;
