@@ -32,8 +32,8 @@ public enum CommonErrorCode implements ErrorCode {
 
     // ===== 서버 에러 (5xx) =====
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_001", "서버 내부 오류가 발생했습니다."),
-    EINDUSTRY_NOT_FOUND(HttpStatus.NOT_FOUND, "EINDUSTRY_404_001", "존재하지 않는 산업군입니다");
-
+    INDUSTRY_NOT_FOUND(HttpStatus.NOT_FOUND, "ENUM_404_001", "존재하지 않는 산업군입니다"),
+    JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "ENUM_404_002", "존재하지 않는 직업군입니다");
 
 
     private final HttpStatus status;
