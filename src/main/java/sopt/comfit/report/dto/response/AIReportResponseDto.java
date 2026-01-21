@@ -10,6 +10,8 @@ import sopt.comfit.report.exception.AIReportErrorCode;
 import java.util.List;
 
 public record AIReportResponseDto(
+        Long id,
+
         String companyName,
 
         String experienceTitle,
@@ -34,6 +36,7 @@ public record AIReportResponseDto(
 
     public static AIReportResponseDto from(AIReport report) {
             return new AIReportResponseDto(
+                    report.getId(),
                     report.getCompany().getName(),
                     report.getExperience().getTitle(),
                     report.getJobDescription(),
