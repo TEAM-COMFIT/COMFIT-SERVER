@@ -32,7 +32,7 @@ public class CompanyController implements CompanySwagger {
                                                              @RequestParam(defaultValue = "1") int page,
                                                              @RequestParam(required = false) Boolean isRecruited) {
 
-        Pageable pageable = PageRequest.of(Math.min(page - 1, 0), 8);
+        Pageable pageable = PageRequest.of(Math.max(page - 1, 0), 8);
         EIndustry industryEnum = industry != null ? EIndustry.from(industry) : null;
         EScale scaleEnum = scale != null ? EScale.valueOf(scale) : null;
         ESort sortEnum = sort != null ? ESort.valueOf(sort) : null;
