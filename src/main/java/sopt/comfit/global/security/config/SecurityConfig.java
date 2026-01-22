@@ -1,5 +1,6 @@
 package sopt.comfit.global.security.config;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +41,8 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(Constants.NO_NEED_AUTH.toArray(String[]::new)).permitAll()
+                        request.dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                                .requestMatchers(Constants.NO_NEED_AUTH.toArray(String[]::new)).permitAll()
                                 .anyRequest().authenticated())
 
                 .exceptionHandling(exception -> exception
