@@ -1,37 +1,34 @@
 package sopt.comfit.auth.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import sopt.comfit.global.enums.EIndustry;
-import sopt.comfit.user.domain.EEducationLevel;
-import sopt.comfit.user.domain.EJob;
 
 public record OnBoardingRequestDTO (
 
-        @NotNull
+        @NotBlank
         @Schema(example = "HIGH_SCHOOL")
-        EEducationLevel educationLevel,
+        String educationLevel,
 
-
-        @NotNull
+        @NotBlank
         @Schema(example = "IT")
-        EIndustry firstIndustry,
+        String firstIndustry,
 
         @Schema(example = "MEDIA_CONTENTS")
-        EIndustry secondIndustry,
+        String secondIndustry,
 
         @Schema(example = "RETAIL")
-        EIndustry thirdIndustry,
+        String thirdIndustry,
 
         @NotNull
         @Schema(example = "MARKETING_STRATEGY")
-        EJob firstJob,
+        String firstJob,
 
         @Schema(example = "BRAND_MARKETING")
-        EJob secondJob,
+        String secondJob,
 
         @Schema(example = "DIGITAL_MARKETING")
-        EJob thirdJob,
+        String thirdJob,
 
         @NotNull
         @Schema(example = "1")

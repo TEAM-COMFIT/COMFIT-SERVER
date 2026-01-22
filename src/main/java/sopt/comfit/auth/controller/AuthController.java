@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import sopt.comfit.auth.dto.LoginResponseDto;
 import sopt.comfit.auth.dto.ReIssueTokenResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
+import sopt.comfit.auth.dto.command.OnBoardingCommandDto;
 import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.LoginRequestDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
@@ -51,7 +52,7 @@ public class AuthController implements AuthSwagger{
             @LoginUser Long userId,
             @RequestBody @Valid OnBoardingRequestDTO request
     ) {
-        authService.addUserInfo(userId, request);
+        authService.addUserInfo(OnBoardingCommandDto.of(userId, request));
     }
 
     @Override
