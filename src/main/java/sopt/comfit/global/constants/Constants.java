@@ -28,7 +28,8 @@ public class Constants {
             "/api/v1/oauth/kakao/callback",
             "/favicon.ico",
             "/.well-known/**",
-            "/api/v1/companies/**"
+            "/api/v1/companies/**",
+            "/oauth/kakao/callback"
     );
 
     public static List<String> NO_NEED_AUTH_INTERCEPTOR = List.of(
@@ -45,6 +46,7 @@ public class Constants {
             "/actuator/**",
             "/api/v1/oauth/kakao/callback",
             "/favicon.ico",
-            "/.well-known/**"
+            "/.well-known/**",
+            "/oauth/kakao/callback"
     );
 }
