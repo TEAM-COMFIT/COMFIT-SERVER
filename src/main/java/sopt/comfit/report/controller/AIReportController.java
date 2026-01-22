@@ -62,4 +62,11 @@ public class AIReportController implements AIReportSwagger {
                                                 @RequestBody MatchExperienceRequestDto request) {
         return aiReportService.matchExperienceAsync(MatchExperienceCommandDto.of(userid, request));
     }
+
+    @PostMapping("/match/async/webclient")
+    @SecurityRequirement(name = "JWT")
+    public AIReportResponseDto matchAsyncWebClient(@LoginUser Long userid ,
+                                                @RequestBody MatchExperienceRequestDto request) {
+        return aiReportService.matchExperienceWebclient(MatchExperienceCommandDto.of(userid, request));
+    }
 }

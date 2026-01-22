@@ -114,6 +114,33 @@ public class AIReportService {
                 }));
     }
 
+    @Transactional
+    public AIReportResponseDto matchExperienceWebclient(MatchExperienceCommandDto command) {
+        Company company = companyRepository.findById(command.companyId())
+                .orElseThrow(() -> BaseException.type(CompanyErrorCode.COMPANY_NOT_FOUND));
+
+        Experience experience = experienceRepository.findByIdAndUserId(command.experienceId(), command.userId())
+                .orElseThrow(() -> new BaseException(ExperienceErrorCode.NOT_FOUND_EXPERIENCE));
+
+        List<CompanyIssue> companyIssueList = companyIssueRepository.findByCompanyId(command.companyId());
+
+        log.info("WebClient API 호출 시작 - companyId: {}, experienceId: {}", company.getId(), experience.getId());
+        long startTime = System.currentTimeMillis();
+
+        CreateReportAiResponseDto response = aiWebClient
+                .createReport(CreateReportAiRequestDto
+                        .from(AIReportPromptBuilder
+                                .build(company, experience, command.jobDescription(), companyIssueList)))
+                .block();  // 여기서 동기로 대기
+
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("WebClient API 호출 완료 - duration: {}ms", duration);
+
+        AIReport aiReport = parseAndSave(response.getContent(), experience, company, command.jobDescription());
+
+        return AIReportResponseDto.from(aiReport);
+    }
+
 
     @Transactional(readOnly = true)
     public PageDto<GetReportSummaryResponseDto> getReportList(Long userId, Pageable pageable, String keyword) {
