@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
-import sopt.comfit.auth.dto.LoginResponseDto;
 import sopt.comfit.auth.dto.ReIssueTokenResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
+import sopt.comfit.auth.dto.command.OnBoardingCommandDto;
 import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
 import sopt.comfit.auth.exception.AuthErrorCode;
@@ -33,7 +33,6 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UniversityRepository universityRepository;
 
@@ -78,18 +77,18 @@ public class AuthService {
     }
 
     @Transactional
-    public void addUserInfo(Long userId, OnBoardingRequestDTO request) {
-        User user = userRepository.findById(userId)
+    public void addUserInfo(OnBoardingCommandDto command) {
+        User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
         user.registerRequiredInfo(
-                request.educationLevel(),
-                request.firstIndustry(),
-                request.secondIndustry(),
-                request.thirdIndustry(),
-                request.firstJob(),
-                request.secondJob(),
-                request.thirdJob(),
-                universityRepository.findById(request.universityId())
+                command.educationLevel(),
+                command.firstIndustry(),
+                command.secondIndustry(),
+                command.thirdIndustry(),
+                command.firstJob(),
+                command.secondJob(),
+                command.thirdJob(),
+                universityRepository.findById(command.universityId())
                         .orElseThrow(() -> BaseException.type(UniversityErrorCode.UNIVERSITY_NOT_FOUND))
         );
     }

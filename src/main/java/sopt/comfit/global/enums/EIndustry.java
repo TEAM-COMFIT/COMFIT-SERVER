@@ -24,6 +24,10 @@ public enum EIndustry {
     private final String description;
 
     public static EIndustry from(String value) {
+
+        if(value == null){
+            return null;
+        }
         return Arrays.stream(values())
                 .filter(eIndustry -> eIndustry.getCode().equals(value))
                 .findFirst().orElseThrow(
