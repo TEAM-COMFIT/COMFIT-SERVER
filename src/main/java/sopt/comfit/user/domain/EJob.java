@@ -27,6 +27,11 @@ public enum EJob {
     private final String description;
 
     public static EJob from(String value) {
+
+        if(value == null){
+            return null;
+        }
+
         return Arrays.stream(values())
                 .filter(eJob -> eJob.getCode().equals(value))
                 .findFirst().orElseThrow(
