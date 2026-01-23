@@ -3,6 +3,9 @@ package sopt.comfit.company.domain;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static sopt.comfit.global.constants.Constants.BASE_URL;
@@ -26,7 +29,15 @@ public enum ERandomPhoto {
 
     private static final ERandomPhoto[] VALUES = values();
 
-    public static ERandomPhoto random() {
-        return VALUES[ThreadLocalRandom.current().nextInt(VALUES.length)];
+    public static List<ERandomPhoto> randomDistinct(int count) {
+        if (count > VALUES.length) {
+            throw new IllegalArgumentException("count is greater than total photos");
+        }
+
+        List<ERandomPhoto> shuffled = new ArrayList<>(List.of(VALUES));
+        Collections.shuffle(shuffled);
+
+        return shuffled.subList(0, count);
     }
+
 }

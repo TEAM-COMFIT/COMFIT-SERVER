@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -111,9 +112,16 @@ public class CompanyService {
     private List<FeaturedCompanyResponseDto> getFeaturedCompany(List<Long> ids){
         Collections.shuffle(ids);
         List<Long> randomIds = ids.subList(0, Math.min(3, ids.size()));
+        List<Company> companies = companyRepository.findAllById(randomIds);
 
-        return companyRepository.findAllById(randomIds).stream()
-                .map(FeaturedCompanyResponseDto::from)
-                .collect(Collectors.toList());
+        List<ERandomPhoto> randomPhotos =
+                ERandomPhoto.randomDistinct(companies.size());
+
+        return IntStream.range(0, companies.size())
+                .mapToObj(i -> FeaturedCompanyResponseDto.of(
+                        companies.get(i),
+                        randomPhotos.get(i).getPhotoUrl()
+                ))
+                .toList();
     }
 }
