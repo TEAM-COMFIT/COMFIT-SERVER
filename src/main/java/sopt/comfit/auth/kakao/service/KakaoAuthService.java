@@ -29,9 +29,6 @@ public class KakaoAuthService {
     @Value("${kakao.client-id}") String clientId;
     @Value("${kakao.client-secret}") String clientSecret;
     @Value("${kakao.redirect-uri}") String redirectUri;
-    private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
-    private final UniversityRepository universityRepository;
     private final AuthService authService;
 
     public LoginQueryDto getKakaoUserInfoByCode(String code) {

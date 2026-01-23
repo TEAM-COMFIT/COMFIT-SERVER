@@ -12,6 +12,7 @@ import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.user.domain.User;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Slf4j
 @Entity
@@ -114,12 +115,14 @@ public class Experience extends BaseTimeEntity {
 
     //validate 메서드
     public static void validateDate(LocalDate startAt, LocalDate endAt) {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+
         if (endAt.isBefore(startAt)) {
             log.warn("종료일시가 시작일시보다 빠를 수 없습니다. startAt: {}, endAt: {}", startAt, endAt);
             throw BaseException.type(ExperienceErrorCode.END_DATE_BEFORE_START_DATE);
         }
 
-        if (startAt.isAfter(LocalDate.now()) || endAt.isAfter(LocalDate.now())) {
+        if (startAt.isAfter(today) || endAt.isAfter(today)) {
             log.warn("종료일시 및 시작일시는 미래 날짜가 될 수 없습니다. startAt: {}, endAt: {}", startAt, endAt);
             throw BaseException.type(ExperienceErrorCode.NOT_ALLOWED_FUTURE_DATE);
         }
