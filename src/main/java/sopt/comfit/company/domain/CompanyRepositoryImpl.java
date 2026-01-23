@@ -152,7 +152,9 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
     }
 
     private BooleanExpression recruitingEq(Boolean isRecruited) {
-        return isRecruited != null ? company.isRecruiting.eq(isRecruited) : null;
+        return Boolean.TRUE.equals(isRecruited)
+                ? company.isRecruiting.isTrue()
+                : null;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(ESort sort) {
