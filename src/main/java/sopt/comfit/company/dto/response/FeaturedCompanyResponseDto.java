@@ -10,12 +10,12 @@ public record FeaturedCompanyResponseDto(
         String scale,
         String photoUrl
 ) {
-    public static FeaturedCompanyResponseDto from(Company company) {
+    public static FeaturedCompanyResponseDto of(Company company, String randomPhotoUrl) {
         return new FeaturedCompanyResponseDto(
                 company.getId(),
                 company.getName(),
                 company.getScale().name(),
-                ERandomPhoto.random().getPhotoUrl()
+                randomPhotoUrl
         );
     }
 }
