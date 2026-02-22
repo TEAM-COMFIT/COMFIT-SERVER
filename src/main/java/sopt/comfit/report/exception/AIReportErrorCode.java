@@ -17,7 +17,7 @@ public enum AIReportErrorCode implements ErrorCode {
     AI_AUTH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI_500_002", "AI 서비스 인증 실패"),
     AI_RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "AI_429_001", "AI 요청 한도 초과"),
     AI_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "AI_502_002", "AI 서버 오류"),
-
+    AI_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI_500_003", "AI 병렬 호출 실패")
     ;
     private final HttpStatus status;
     private final String prefix;

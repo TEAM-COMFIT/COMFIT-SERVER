@@ -90,7 +90,4 @@ public class AIReport extends BaseTimeEntity {
                 .company(company)
                 .build();
     }
-
-
-
 }
