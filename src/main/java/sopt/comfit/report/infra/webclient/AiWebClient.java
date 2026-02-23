@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import sopt.comfit.global.exception.BaseException;
-import sopt.comfit.global.util.JsonCleanUtils;
 import sopt.comfit.report.exception.AIReportErrorCode;
 import sopt.comfit.report.infra.dto.CreateReportAiRequestDto;
 import sopt.comfit.report.infra.dto.CreateReportAiResponseDto;

@@ -73,6 +73,6 @@ public class AIReportController implements AIReportSwagger {
     @SecurityRequirement(name = "JWT")
     public Mono<AIReportResponseDto> matchExperienceWebfluxParallel(@LoginUser Long userId,
                                                                     @RequestBody MatchExperienceRequestDto requestDto){
-        return aiReportFacade.matchExperienceWebfluxParallel(MatchExperienceCommandDto.of(userId, requestDto));
+        return aiReportFacade.matchExperienceParallel(MatchExperienceCommandDto.of(userId, requestDto));
     }
 }
