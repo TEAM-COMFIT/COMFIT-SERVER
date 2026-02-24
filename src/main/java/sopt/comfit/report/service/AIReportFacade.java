@@ -102,4 +102,19 @@ public class AIReportFacade {
                                 .subscribeOn(Schedulers.boundedElastic())))
                 .map(AIReportResponseDto::from);
     }
+
+    // Virtual Thread 방식
+    public AIReportResponseDto matchExperienceVirtualThread(MatchExperienceCommandDto command) {
+        PreparedDataDto data = aiReportQueryService.prepareData(command);
+
+        String perspectivesJson = aiCaller.callSyncWithField(
+                AIReportParallelPromptBuilder.buildPerspective(data),
+                "Perspectives", "perspectives");
+
+        String mergedJson = aiCaller.callParallelWithVirtualThread(data, perspectivesJson);
+
+        return AIReportResponseDto.from(
+                aiReportCommandService.parseAndSave(mergedJson, data.experience(),
+                        data.company(), command.jobDescription()));
+    }
 }
