@@ -75,4 +75,11 @@ public class AIReportController implements AIReportSwagger {
                                                                     @RequestBody MatchExperienceRequestDto requestDto){
         return aiReportFacade.matchExperienceParallel(MatchExperienceCommandDto.of(userId, requestDto));
     }
+
+    @PostMapping("/match/sync/parallel")
+    @SecurityRequirement(name = "JWT")
+    public AIReportResponseDto matchExperienceVirtualThread(@LoginUser Long userId,
+                                                                    @RequestBody MatchExperienceRequestDto requestDto){
+        return aiReportFacade.matchExperienceVirtualThread(MatchExperienceCommandDto.of(userId, requestDto));
+    }
 }
