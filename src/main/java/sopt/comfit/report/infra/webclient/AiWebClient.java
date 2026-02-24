@@ -48,7 +48,6 @@ public class AiWebClient {
                         log.error("OpenAI API 호출 실패", error));
     }
 
-
     private Mono<CreateReportAiResponseDto> createReportFallback(
             CreateReportAiRequestDto request, Throwable t) {
 

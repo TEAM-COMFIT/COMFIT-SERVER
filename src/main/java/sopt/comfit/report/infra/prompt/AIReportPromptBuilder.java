@@ -1,4 +1,4 @@
-package sopt.comfit.report.service;
+package sopt.comfit.report.infra.prompt;
 
 import lombok.extern.slf4j.Slf4j;
 import sopt.comfit.company.domain.Company;
