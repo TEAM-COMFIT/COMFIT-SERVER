@@ -1,6 +1,7 @@
 package sopt.comfit.report.infra.feign;
 
 import feign.RequestInterceptor;
+import feign.codec.ErrorDecoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
@@ -13,5 +14,10 @@ public class OpenAiFeignClientConfig {
     public RequestInterceptor authInterceptor() {
         return template ->
         {template.header("Authorization", "Bearer " + apiKey);};
+    }
+
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new OpenAiFeignErrorDecoder();
     }
 }

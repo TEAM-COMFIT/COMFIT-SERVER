@@ -13,6 +13,7 @@ import sopt.comfit.report.exception.AIReportErrorCode;
 import sopt.comfit.report.infra.dto.CreateReportAiRequestDto;
 import sopt.comfit.report.infra.dto.PreparedDataDto;
 import sopt.comfit.report.infra.feign.OpenAiFeignClient;
+import sopt.comfit.report.infra.feign.ResilientOpenAiFeignClient;
 import sopt.comfit.report.infra.prompt.AIReportParallelPromptBuilder;
 import sopt.comfit.report.infra.webclient.AiWebClient;
 import sopt.comfit.report.util.JsonUtils;
@@ -27,7 +28,7 @@ import java.util.concurrent.Future;
 public class RetryableAiCallerService {
 
     private final AiWebClient aiWebClient;
-    private final OpenAiFeignClient openAiFeignClient;
+    private final ResilientOpenAiFeignClient openAiFeignClient;
     private final ObjectMapper objectMapper;
     private final JsonUtils jsonUtils;
     private static final int MAX_RETRY = 2;

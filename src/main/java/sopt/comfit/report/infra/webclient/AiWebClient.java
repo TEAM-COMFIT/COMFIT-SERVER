@@ -1,7 +1,9 @@
 package sopt.comfit.report.infra.webclient;
 
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ public class AiWebClient {
     private final WebClient webClient;
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
+    @RateLimiter(name = "openai")
+    @Bulkhead(name = "openai", type = Bulkhead.Type.SEMAPHORE)
     @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(name = "openai", fallbackMethod = "createReportFallback")
     @Retry(name = "openai")
     @TimeLimiter(name = "openai")
