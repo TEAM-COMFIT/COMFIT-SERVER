@@ -15,4 +15,8 @@ public record MatchExperienceCommandDto(
     public static MatchExperienceCommandDto of(Long userId, MatchExperienceRequestDto request) {
         return new MatchExperienceCommandDto(userId, request.companyId(), request.experienceId(), request.jobDescription());
     }
+
+    public static MatchExperienceCommandDto of(Long userId, Long companyId, Long experienceId, String jobDescription) {
+        return new MatchExperienceCommandDto(userId, companyId, experienceId, jobDescription);
+    }
 }

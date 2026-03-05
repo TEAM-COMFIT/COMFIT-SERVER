@@ -12,6 +12,7 @@ public class Constants {
     public static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
     public static final String BASE_URL =
             "https://bucket-com-fit-server.s3.ap-northeast-2.amazonaws.com/";
+    public static final String JOB_QUEUE_KEY = "report:job:queue";
 
     public static List<String> NO_NEED_AUTH = List.of(
             "/swagger",

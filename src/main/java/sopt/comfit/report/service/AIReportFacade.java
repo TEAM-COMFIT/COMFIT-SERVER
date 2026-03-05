@@ -17,6 +17,7 @@ import sopt.comfit.report.infra.dto.PreparedDataDto;
 import sopt.comfit.report.infra.prompt.AIReportParallelPromptBuilder;
 import sopt.comfit.report.infra.prompt.AIReportPromptBuilder;
 import sopt.comfit.report.infra.service.RetryableAiCallerService;
+import sopt.comfit.report.job.AIReportJobService;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class AIReportFacade {
     private final AIReportQueryService aiReportQueryService;
     private final AIReportCommandService aiReportCommandService;
     private final RetryableAiCallerService aiCaller;
+    private final AIReportJobService aiReportJobService;
 
 
     public PageDto<GetReportSummaryResponseDto> getReportList(Long userId, Pageable pageable, String keyword){
@@ -116,5 +118,14 @@ public class AIReportFacade {
         return AIReportResponseDto.from(
                 aiReportCommandService.parseAndSave(mergedJson, data.experience(),
                         data.company(), command.jobDescription()));
+    }
+
+    public Long matchExperienceJob(MatchExperienceCommandDto command) {
+
+        return aiReportJobService.createJob(
+                    command.userId(),
+                    command.companyId(),
+                    command.experienceId(),
+                    command.jobDescription());
     }
 }
