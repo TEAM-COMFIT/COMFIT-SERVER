@@ -19,7 +19,8 @@ public enum AIReportErrorCode implements ErrorCode {
     AI_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "AI_502_002", "AI 서버 오류"),
     AI_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI_500_003", "AI 병렬 호출 실패"),
     AI_RESPONSE_REQUIRED_FIELD_OMIT(HttpStatus.INTERNAL_SERVER_ERROR, "AI_500_004", "AI 응답이 필수 응답값을 누락했습니다."),
-    REPORT_JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "AI_404_002", "해당하는 Job을 찾을 수 없습니다.")
+    REPORT_JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "AI_404_002", "해당하는 Job을 찾을 수 없습니다."),
+    JOB_QUEUE_FULL(HttpStatus.TOO_MANY_REQUESTS,"AI_429_001", "JOB QUEUE가 꽉찼습니다")
     ;
     private final HttpStatus status;
     private final String prefix;

@@ -49,7 +49,8 @@ public class AIReportController implements AIReportSwagger {
         return aiReportFacade.getReportCompany(companyId);
     }
 
-    @Override
+    @PostMapping("/match/sync")
+    @SecurityRequirement(name = "JWT")
     public AIReportResponseDto matchExperience(@LoginUser Long userId,
                                                @Valid @RequestBody MatchExperienceRequestDto requestDto){
         return aiReportFacade.matchExperience(MatchExperienceCommandDto.of(userId, requestDto));
@@ -76,8 +77,7 @@ public class AIReportController implements AIReportSwagger {
         return aiReportFacade.matchExperienceParallel(MatchExperienceCommandDto.of(userId, requestDto));
     }
 
-    @PostMapping("/match/sync/parallel")
-    @SecurityRequirement(name = "JWT")
+    @Override
     public AIReportResponseDto matchExperienceVirtualThread(@LoginUser Long userId,
                                                                     @RequestBody MatchExperienceRequestDto requestDto){
         return aiReportFacade.matchExperienceVirtualThread(MatchExperienceCommandDto.of(userId, requestDto));

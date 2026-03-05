@@ -19,6 +19,12 @@ public class AIReportJobService {
 
     @Transactional
     public Long createJob(Long userId, Long experienceId, Long companyId, String jobDescription) {
+
+        Long queueSize = redisTemplate.opsForList().size(Constants.JOB_QUEUE_KEY);
+
+        if (queueSize != null && queueSize > 200) {
+            throw BaseException.type(AIReportErrorCode.JOB_QUEUE_FULL);
+        }
         AIReportJob job = AIReportJob.create(userId, experienceId, companyId, jobDescription);
         reportJobRepository.save(job);
 

@@ -48,8 +48,8 @@ public interface AIReportSwagger {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @SecurityRequirement(name = "JWT")
-    AIReportResponseDto matchExperience(@LoginUser Long userId,
-                                        @Valid @RequestBody MatchExperienceRequestDto requestDto);
+    AIReportResponseDto matchExperienceVirtualThread(@LoginUser Long userId,
+                                                     @Valid @RequestBody MatchExperienceRequestDto requestDto);
 
     @Operation(
             summary = "AI_Report 리스트 조회/ 검색",

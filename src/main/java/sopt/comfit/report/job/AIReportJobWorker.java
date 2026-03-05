@@ -16,6 +16,8 @@ import sopt.comfit.report.service.AIReportCommandService;
 import sopt.comfit.report.service.AIReportQueryService;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -28,17 +30,24 @@ public class AIReportJobWorker {
     private final AIReportCommandService aiReportCommandService;
     private final RetryableAiCallerService aiCaller;
 
-    private Thread worker;
+    List<Thread> workers = new ArrayList<>();
 
     @PostConstruct
     public void startWorker() {
-        worker = Thread.ofVirtual().name("report-job-worker").start(this::listen);
-        log.info("ReportJobWorker 시작");
+        int workerCount = 3;
+        workers = new ArrayList<>();
+        for (int i = 0; i < workerCount; i++) {
+            Thread t = Thread.ofVirtual()
+                    .name("report-job-worker-" + i)
+                    .start(this::listen);
+            workers.add(t);
+        }
+        log.info("ReportJobWorker {}개 시작", workerCount);
     }
 
     @PreDestroy
     public void stopWorker() {
-        worker.interrupt();
+        workers.forEach(Thread::interrupt);
         log.info("ReportJobWorker 종료");
     }
 
