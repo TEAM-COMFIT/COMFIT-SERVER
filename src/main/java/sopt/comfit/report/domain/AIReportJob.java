@@ -20,10 +20,10 @@ public class AIReportJob extends BaseTimeEntity {
     private Long userId;
 
     @Column(nullable = false)
-    private Long experienceId;
+    private Long companyId;
 
     @Column(nullable = false)
-    private Long companyId;
+    private Long experienceId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
@@ -35,8 +35,8 @@ public class AIReportJob extends BaseTimeEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private AIReportJob(
             final Long userId,
-            final Long experienceId,
             final Long companyId,
+            final Long experienceId,
             final String description,
             final EJobStatus status
     ){
@@ -48,13 +48,13 @@ public class AIReportJob extends BaseTimeEntity {
     }
 
     public static AIReportJob create(final Long userId,
-                                     final Long experienceId,
                                      final Long companyId,
+                                     final Long experienceId,
                                      final String description) {
         return new AIReportJob(
                 userId,
-                experienceId,
                 companyId,
+                experienceId,
                 description,
                 EJobStatus.PENDING);
     }

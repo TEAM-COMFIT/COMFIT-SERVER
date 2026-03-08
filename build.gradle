@@ -102,6 +102,9 @@ dependencies {
     //resilience4j
     implementation 'io.github.resilience4j:resilience4j-spring-boot3'
     implementation 'io.github.resilience4j:resilience4j-reactor'
+
+    //logging
+    implementation "net.logstash.logback:logstash-logback-encoder:7.4"
 }
 
 tasks.named('test') {
