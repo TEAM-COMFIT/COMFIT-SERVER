@@ -94,7 +94,7 @@ public class AIReportJobWorker {
             log.info("Job 처리 완료 - jobId: {}", jobId);
 
         } catch (BaseException e) {
-            log.warn("Job 실패 - jobId={}, reason={}", jobId, e.getMessage());
+            log.warn("Job 실패 - jobId={}", jobId, e);
             reportJobService.fail(jobId);
 
         } catch (Exception e) {
