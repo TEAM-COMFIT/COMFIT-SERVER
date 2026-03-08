@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- 일반 콘솔 패턴 (로컬 개발용 - 읽기 쉬움) -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [traceId=%X{traceId:-}] [jobId=%X{jobId:-}] [userId=%X{userId:-}] %-5level %logger{36} - %msg%n"/>
+
+    <!-- JSON 패턴 (운영용 - Loki 파싱) -->
+    <property name="JSON_LOG_PATTERN"
+              value='{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","thread":"%thread","traceId":"%X{traceId:-}","jobId":"%X{jobId:-}","userId":"%X{userId:-}","level":"%level","logger":"%logger{36}","message":"%msg"}%n'/>
+
+    <!-- 일반 콘솔 Appender (로컬용) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- JSON 콘솔 Appender (운영용) -->
+    <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${JSON_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 로컬: 일반 포맷 (읽기 쉬움) -->
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- 운영: JSON 포맷 (Loki 파싱용) -->
+    <springProfile name="dev,prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_JSON"/>
+        </root>
+    </springProfile>
+
+    <!-- 패키지별 로그 레벨 -->
+    <logger name="sopt.comfit" level="DEBUG"/>
+    <logger name="sopt.comfit.report" level="DEBUG"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+</configuration>

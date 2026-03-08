@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.constants.Constants;
+import sopt.comfit.global.logging.MdcUtils;
 import sopt.comfit.report.domain.AIReportJob;
 import sopt.comfit.report.dto.command.MatchExperienceCommandDto;
 import sopt.comfit.report.infra.dto.PreparedDataDto;
@@ -67,9 +68,15 @@ public class AIReportJobWorker {
     }
 
     private void processJob(Long jobId) {
-        reportJobService.startProcessing(jobId);
 
         try {
+            //MDC 설정
+            MdcUtils.generateTraceId();
+            MdcUtils.setJobId(jobId);
+
+            log.info("Job 처리 시작");
+            reportJobService.startProcessing(jobId);
+
             MatchExperienceCommandDto command = buildCommand(jobId);
             PreparedDataDto data = aiReportQueryService.prepareData(command);
 
@@ -87,6 +94,8 @@ public class AIReportJobWorker {
         } catch (Exception e) {
             log.error("Job 처리 실패 - jobId: {}", jobId, e);
             reportJobService.fail(jobId);
+        } finally {
+            MdcUtils.clear();
         }
     }
 
