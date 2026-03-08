@@ -157,6 +157,7 @@ public class RetryableAiCallerService {
                     guidanceFuture.get()
             );
         } catch (Exception e) {
+            log.error("AI 병렬 호출 실패 - cause={}", e.getCause().getMessage(), e);
             throw BaseException.type(AIReportErrorCode.AI_CALL_FAILED);
         }
     }
