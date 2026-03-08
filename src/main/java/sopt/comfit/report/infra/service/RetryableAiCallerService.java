@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 import sopt.comfit.global.exception.BaseException;
+import sopt.comfit.global.logging.ContextAwareExecutor;
 import sopt.comfit.report.exception.AIReportErrorCode;
 import sopt.comfit.report.infra.dto.CreateReportAiRequestDto;
 import sopt.comfit.report.infra.dto.PreparedDataDto;
@@ -32,6 +33,7 @@ public class RetryableAiCallerService {
     private final ObjectMapper objectMapper;
     private final JsonUtils jsonUtils;
     private static final int MAX_RETRY = 2;
+    private final ContextAwareExecutor contextAwareExecutor;
 
     // Feign 동기 호출
     public String callSync(String prompt) {
@@ -126,20 +128,23 @@ public class RetryableAiCallerService {
 
     // 동기 병렬 호출
     public String callParallelWithVirtualThread(PreparedDataDto data, String perspectivesJson) {
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            Future<String> densityFuture = executor.submit(() ->
+        try (ExecutorService executor = contextAwareExecutor.newVirtualThreadExecutor()) {
+            Future<String> densityFuture = contextAwareExecutor.submit(executor, () ->
                     callSyncWithField(
                             AIReportParallelPromptBuilder.buildDensity(data, perspectivesJson),
                             "Density", "density"));  // callSyncWithField로 변경
-            Future<String> appealPointFuture = executor.submit(() ->
+
+            Future<String> appealPointFuture = contextAwareExecutor.submit(executor, () ->
                     callSyncWithField(
                             AIReportParallelPromptBuilder.buildAppealPoint(data, perspectivesJson),
                             "AppealPoint", "appealPoint"));
-            Future<String> suggestionFuture = executor.submit(() ->
+
+            Future<String> suggestionFuture = contextAwareExecutor.submit(executor, () ->
                     callSyncWithField(
                             AIReportParallelPromptBuilder.buildSuggestion(data, perspectivesJson),
                             "Suggestion", "suggestion"));
-            Future<String> guidanceFuture = executor.submit(() ->
+
+            Future<String> guidanceFuture = contextAwareExecutor.submit(executor, () ->
                     callSyncWithField(
                             AIReportParallelPromptBuilder.buildGuidance(data, perspectivesJson),
                             "Guidance", "guidance"));

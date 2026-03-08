@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sopt.comfit.global.constants.Constants;
+import sopt.comfit.global.logging.MdcUtils;
 import sopt.comfit.global.security.info.JwtAuthenticationToken;
 import sopt.comfit.global.security.info.JwtUserInfo;
 import sopt.comfit.global.security.manager.JwtAuthenticationManager;
@@ -34,32 +35,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        try {
+            MdcUtils.generateTraceId();
 
-        String header = request.getHeader(Constants.PREFIX_AUTH);
-        log.info("header:{}",header);
+            String header = request.getHeader(Constants.PREFIX_AUTH);
+            log.info("header:{}", header);
 
-        if (header == null || !header.startsWith("Bearer ")) {
+            if (header == null || !header.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            String token = HeaderUtil.refineHeader(request, Constants.PREFIX_AUTH, Constants.BEARER);
+            Claims claim = jwtUtil.validateToken(token);
+            log.info("claim: getUserId() = {}", claim.get(Constants.CLAIM_USER_ID, Long.class));
+
+            JwtUserInfo jwtUserInfo = JwtUserInfo.from(claim);
+
+            MdcUtils.setUserId(jwtUserInfo.userId());
+
+            JwtAuthenticationToken unAuthenticatedToken = new JwtAuthenticationToken(jwtUserInfo);
+
+            JwtAuthenticationToken authenticatedToken = (JwtAuthenticationToken) jwtAuthenticationManager.authenticate(unAuthenticatedToken);
+
+            log.info("Authentication Successful: {}", authenticatedToken);
+
+            authenticatedToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(authenticatedToken);
+            SecurityContextHolder.setContext(securityContext);
+
             filterChain.doFilter(request, response);
-            return;
+        } finally {
+            MdcUtils.clear();
         }
-        String token = HeaderUtil.refineHeader(request, Constants.PREFIX_AUTH, Constants.BEARER);
-        Claims claim = jwtUtil.validateToken(token);
-        log.info("claim: getUserId() = {}", claim.get(Constants.CLAIM_USER_ID, Long.class));
-
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(claim);
-
-        JwtAuthenticationToken unAuthenticatedToken = new JwtAuthenticationToken(jwtUserInfo);
-
-        JwtAuthenticationToken authenticatedToken = (JwtAuthenticationToken) jwtAuthenticationManager.authenticate(unAuthenticatedToken);
-
-        log.info("Authentication Successful: {}", authenticatedToken);
-
-        authenticatedToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(authenticatedToken);
-        SecurityContextHolder.setContext(securityContext);
-        filterChain.doFilter(request, response);
     }
 
 }
