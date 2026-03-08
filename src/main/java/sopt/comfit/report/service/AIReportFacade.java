@@ -122,10 +122,8 @@ public class AIReportFacade {
 
     public Long matchExperienceJob(MatchExperienceCommandDto command) {
 
-        return aiReportJobService.createJob(
-                    command.userId(),
-                    command.companyId(),
-                    command.experienceId(),
-                    command.jobDescription());
+        aiReportQueryService.validateIds(command);
+
+        return aiReportJobService.createJob(command);
     }
 }

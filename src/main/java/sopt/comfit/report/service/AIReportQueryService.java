@@ -87,5 +87,15 @@ public class AIReportQueryService {
 
         return PreparedDataDto.of(company, experience, command.jobDescription(), issues);
     }
+
+    @Transactional(readOnly = true)
+    public void validateIds(MatchExperienceCommandDto command) {
+        if(!companyRepository.existsById(command.companyId())){
+            throw new BaseException(CompanyErrorCode.COMPANY_NOT_FOUND);
+        }
+        if(!experienceRepository.existsById(command.experienceId())){
+            throw new BaseException(ExperienceErrorCode.NOT_FOUND_EXPERIENCE);
+        }
+    }
 }
 

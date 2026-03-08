@@ -8,6 +8,7 @@ import sopt.comfit.global.constants.Constants;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.report.domain.AIReportJob;
 import sopt.comfit.report.domain.AIReportJobRepository;
+import sopt.comfit.report.dto.command.MatchExperienceCommandDto;
 import sopt.comfit.report.exception.AIReportErrorCode;
 
 @Service
@@ -18,14 +19,19 @@ public class AIReportJobService {
     private final StringRedisTemplate redisTemplate;
 
     @Transactional
-    public Long createJob(Long userId, Long companyId, Long experienceId, String jobDescription) {
+    public Long createJob(MatchExperienceCommandDto command) {
 
         Long queueSize = redisTemplate.opsForList().size(Constants.JOB_QUEUE_KEY);
 
         if (queueSize != null && queueSize > 200) {
             throw BaseException.type(AIReportErrorCode.JOB_QUEUE_FULL);
         }
-        AIReportJob job = AIReportJob.create(userId, companyId, experienceId, jobDescription);
+        AIReportJob job = AIReportJob.create(
+                command.userId(),
+                command.companyId(),
+                command.experienceId(),
+                command.jobDescription());
+
         reportJobRepository.save(job);
 
         redisTemplate.opsForList().leftPush(Constants.JOB_QUEUE_KEY, String.valueOf(job.getId()));
