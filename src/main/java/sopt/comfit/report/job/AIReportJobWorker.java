@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.constants.Constants;
+import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.global.logging.MdcUtils;
 import sopt.comfit.report.domain.AIReportJob;
 import sopt.comfit.report.dto.command.MatchExperienceCommandDto;
@@ -91,9 +92,15 @@ public class AIReportJobWorker {
 
             reportJobService.complete(jobId);
             log.info("Job 처리 완료 - jobId: {}", jobId);
-        } catch (Exception e) {
-            log.error("Job 처리 실패 - jobId: {}", jobId, e);
+
+        } catch (BaseException e) {
+            log.warn("Job 실패 - jobId={}, reason={}", jobId, e.getMessage());
             reportJobService.fail(jobId);
+
+        } catch (Exception e) {
+            log.error("Job 시스템 오류 - jobId={}", jobId, e);
+            reportJobService.fail(jobId);
+
         } finally {
             MdcUtils.clear();
         }

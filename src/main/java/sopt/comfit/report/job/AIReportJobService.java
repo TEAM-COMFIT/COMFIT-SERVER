@@ -18,14 +18,14 @@ public class AIReportJobService {
     private final StringRedisTemplate redisTemplate;
 
     @Transactional
-    public Long createJob(Long userId, Long experienceId, Long companyId, String jobDescription) {
+    public Long createJob(Long userId, Long companyId, Long experienceId, String jobDescription) {
 
         Long queueSize = redisTemplate.opsForList().size(Constants.JOB_QUEUE_KEY);
 
         if (queueSize != null && queueSize > 200) {
             throw BaseException.type(AIReportErrorCode.JOB_QUEUE_FULL);
         }
-        AIReportJob job = AIReportJob.create(userId, experienceId, companyId, jobDescription);
+        AIReportJob job = AIReportJob.create(userId, companyId, experienceId, jobDescription);
         reportJobRepository.save(job);
 
         redisTemplate.opsForList().leftPush(Constants.JOB_QUEUE_KEY, String.valueOf(job.getId()));
