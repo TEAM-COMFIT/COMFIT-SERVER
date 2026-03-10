@@ -10,7 +10,9 @@ import sopt.comfit.global.enums.EIndustry;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "companies")
+@Table(name = "companies", indexes = {
+        @Index(name = "idx_company_industry_scale_created", columnList = "industry, scale, created_at DESC")
+})
 public class Company extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
