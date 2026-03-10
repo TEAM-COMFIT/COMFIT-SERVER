@@ -26,19 +26,25 @@ public class CompanyController implements CompanySwagger {
 
     @Override
     public PageDto<GetCompanyListResponseDto> getCompanyList(@RequestParam(required = false) String keyword,
-                                                             @RequestParam(required = false) String industry,
-                                                             @RequestParam(required = false) String scale,
+                                                             @RequestParam(required = false) List<String> industry,
+                                                             @RequestParam(required = false) List<String> scale,
                                                              @RequestParam(required = false) String sort,
                                                              @RequestParam(defaultValue = "1") int page,
                                                              @RequestParam(required = false) Boolean isRecruited) {
 
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), 8);
-        EIndustry industryEnum = industry != null ? EIndustry.from(industry) : null;
-        EScale scaleEnum = scale != null ? EScale.valueOf(scale) : null;
+        List<EIndustry> industryEnums = industry != null
+                ? industry.stream().map(EIndustry::from).toList()
+                : null;
+
+        List<EScale> scaleEnums = scale != null
+                ? scale.stream().map(EScale::from).toList()
+                : null;
+
         ESort sortEnum = sort != null ? ESort.valueOf(sort) : null;
 
 
-        return companyService.getCompanyList(keyword, industryEnum, scaleEnum, sortEnum, isRecruited, pageable);
+        return companyService.getCompanyList(keyword, industryEnums, scaleEnums, sortEnum, isRecruited, pageable);
     }
 
     @Override

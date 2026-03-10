@@ -23,6 +23,11 @@ public interface AIReportRepository extends JpaRepository<AIReport, Long> {
             Pageable pageable
     );
 
-    Optional<AIReport> findByExperienceUserIdAndId(Long userId, Long id);
+    @Query("SELECT a FROM AIReport a " +
+            "JOIN FETCH a.company " +
+            "JOIN FETCH a.experience " +
+            "WHERE a.experience.user.id = :userId AND a.id = :id")
+    Optional<AIReport> findByExperienceUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
+
     boolean existsByCompanyIdAndExperienceUserId(Long companyId, Long userId);
 }

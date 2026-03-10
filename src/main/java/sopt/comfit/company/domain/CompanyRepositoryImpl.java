@@ -29,8 +29,8 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
     @Override
     public Page<GetCompanyListResponseDto> getCompanyList(
             String keyword,
-            EIndustry industry,
-            EScale scale,
+            List<EIndustry> industry,
+            List<EScale> scale,
             Boolean isRecruited,
             ESort sort,
             Pageable pageable
@@ -87,8 +87,8 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
 
     private List<Company> sortByLikeCount(
             String keyword,
-            EIndustry industry,
-            EScale scale,
+            List<EIndustry> industry,
+            List<EScale> scale,
             Boolean isRecruited,
             Pageable pageable
     ) {
@@ -143,12 +143,16 @@ public class CompanyRepositoryImpl implements CompanyRepositoryCustom {
                 : null;
     }
 
-    private BooleanExpression industryEq(EIndustry industry) {
-        return industry != null ? company.industry.eq(industry) : null;
+    private BooleanExpression industryEq(List<EIndustry> industry) {
+        return industry != null && !industry.isEmpty()
+                ? company.industry.in(industry)
+                : null;
     }
 
-    private BooleanExpression scaleEq(EScale scale) {
-        return scale != null ? company.scale.eq(scale) : null;
+    private BooleanExpression scaleEq(List<EScale> scale) {
+        return scale != null && !scale.isEmpty()
+                ? company.scale.in(scale)
+                : null;
     }
 
     private BooleanExpression recruitingEq(Boolean isRecruited) {

@@ -6,12 +6,14 @@ import sopt.comfit.company.dto.response.GetCompanyListResponseDto;
 import sopt.comfit.global.enums.EIndustry;
 import sopt.comfit.global.enums.ESort;
 
+import java.util.List;
+
 public interface CompanyRepositoryCustom {
 
     Page<GetCompanyListResponseDto> getCompanyList(
             String keyword,
-            EIndustry industry,
-            EScale scale,
+            List<EIndustry> industry,
+            List<EScale> scale,
             Boolean isRecruited,
             ESort sort,
             Pageable pageable
