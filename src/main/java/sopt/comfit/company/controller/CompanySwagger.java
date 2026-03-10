@@ -44,8 +44,8 @@ public interface CompanySwagger {
     @GetMapping
     @SecurityRequirement(name = "JWT")
     PageDto<GetCompanyListResponseDto> getCompanyList(@RequestParam(required = false) String keyword,
-                                                                  @RequestParam(required = false) String industry,
-                                                                  @RequestParam(required = false) String scale,
+                                                                  @RequestParam(required = false) List<String> industry,
+                                                                  @RequestParam(required = false) List<String> scale,
                                                                   @RequestParam(required = false) String sort,
                                                                   @RequestParam(defaultValue = "1") int page,
                                                                   @RequestParam(required = false) Boolean isRecruited);

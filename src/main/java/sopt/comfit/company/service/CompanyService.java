@@ -34,8 +34,8 @@ public class CompanyService {
 
     @Transactional(readOnly = true)
     public PageDto<GetCompanyListResponseDto> getCompanyList( String keyword,
-                                                              EIndustry industry,
-                                                              EScale scale,
+                                                              List<EIndustry> industry,
+                                                              List<EScale> scale,
                                                               ESort sort,
                                                               Boolean isRecruited,
                                                               Pageable pageable){
