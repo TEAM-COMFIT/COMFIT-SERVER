@@ -36,7 +36,7 @@ public class AIReportJobWorker {
 
     @PostConstruct
     public void startWorker() {
-        int workerCount = 3;
+        int workerCount = 2;
         workers = new ArrayList<>();
         for (int i = 0; i < workerCount; i++) {
             Thread t = Thread.ofVirtual()

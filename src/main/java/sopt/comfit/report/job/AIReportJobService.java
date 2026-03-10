@@ -1,6 +1,7 @@
 package sopt.comfit.report.job;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ public class AIReportJobService {
 
     private final AIReportJobRepository reportJobRepository;
     private final StringRedisTemplate redisTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Long createJob(MatchExperienceCommandDto command) {
@@ -34,7 +36,7 @@ public class AIReportJobService {
 
         reportJobRepository.save(job);
 
-        redisTemplate.opsForList().leftPush(Constants.JOB_QUEUE_KEY, String.valueOf(job.getId()));
+        eventPublisher.publishEvent(new JobCreatedEvent(job.getId()));
 
         return job.getId();
     }

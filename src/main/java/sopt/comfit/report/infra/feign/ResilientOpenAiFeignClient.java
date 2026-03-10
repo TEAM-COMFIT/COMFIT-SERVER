@@ -1,5 +1,6 @@
 package sopt.comfit.report.infra.feign;
 
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
@@ -21,6 +22,7 @@ public class ResilientOpenAiFeignClient {
     private final OpenAiFeignClient openAiFeignClient;
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
+    @Bulkhead(name = "openai")
     @RateLimiter(name = "openai")
     @io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker(
             name = "openai-feign", fallbackMethod = "createReportFallback")
