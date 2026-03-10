@@ -1,6 +1,7 @@
 package sopt.comfit.company.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,10 @@ public class CompanyService {
     private final CompanyIssueRepository companyIssueRepository;
     private final UserRepository userRepository;
 
-
+    @Cacheable(
+            value = "companyList",
+            key = "#keyword + '_' + #industry + '_' + #scale + '_' + #sort + '_' + #isRecruited + '_' + #pageable.pageNumber"
+    )
     @Transactional(readOnly = true)
     public PageDto<GetCompanyListResponseDto> getCompanyList( String keyword,
                                                               List<EIndustry> industry,
