@@ -43,13 +43,18 @@ public class AIReportCommandService {
                     json.get("appealPoint").size());
 
             AIReport report = AIReport.create(
+                    experience.getUser().getId(),
+                    experience.getTitle(),
+                    experience.getSituation(),
+                    experience.getTask(),
+                    experience.getAction(),
+                    experience.getResult(),
                     jobDescription,
                     json.get("perspectives").toString(),
                     json.get("density").toString(),
                     json.get("appealPoint").toString(),
                     json.get("suggestion").asText(),
                     json.get("guidance").asText(),
-                    experience,
                     company
             );
 

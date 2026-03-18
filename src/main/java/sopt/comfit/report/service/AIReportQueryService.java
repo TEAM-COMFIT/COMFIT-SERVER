@@ -43,9 +43,9 @@ public class AIReportQueryService {
         Page<AIReport> reports;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            reports = aIReportRepository.findByExperienceUserIdAndKeyword(userId, keyword, pageable);
+            reports = aIReportRepository.findByUserIdAndKeyword(userId, keyword, pageable);
         } else {
-            reports = aIReportRepository.findByExperienceUserId(userId, pageable);
+            reports = aIReportRepository.findByUserId(userId, pageable);
         }
 
         return PageDto.from(reports.map(GetReportSummaryResponseDto::from));
@@ -53,7 +53,7 @@ public class AIReportQueryService {
 
     @Transactional(readOnly = true)
     public AIReportResponseDto getReport(Long userId, Long reportId) {
-        AIReport aiReport = aIReportRepository.findByExperienceUserIdAndId(userId, reportId)
+        AIReport aiReport = aIReportRepository.findByUserIdAndId(userId, reportId)
                 .orElseThrow(() -> BaseException.type(AIReportErrorCode.AI_REPORT_NOT_FOUND));
 
         return AIReportResponseDto.from(aiReport);
