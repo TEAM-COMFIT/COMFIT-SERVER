@@ -17,7 +17,7 @@ public record GetReportSummaryResponseDto(
         return new GetReportSummaryResponseDto(
                 aiRepot.getId(),
                 aiRepot.getCompany().getName(),
-                aiRepot.getExperience().getTitle(),
+                aiRepot.getExperienceTitle(),
                 aiRepot.getCreatedAt().toLocalDate()
                 );
     }

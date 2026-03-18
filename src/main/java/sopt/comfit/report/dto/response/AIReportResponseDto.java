@@ -16,6 +16,14 @@ public record AIReportResponseDto(
 
         String experienceTitle,
 
+        String situation,
+
+        String task,
+
+        String action,
+
+        String result,
+
         String jobDescription,
 
         List<Perspective> perspectives,
@@ -38,7 +46,11 @@ public record AIReportResponseDto(
             return new AIReportResponseDto(
                     report.getId(),
                     report.getCompany().getName(),
-                    report.getExperience().getTitle(),
+                    report.getExperienceTitle(),
+                    report.getSituation(),
+                    report.getTask(),
+                    report.getAction(),
+                    report.getResult(),
                     report.getJobDescription(),
                     fromJson(report.getPerspectives(), new TypeReference<List<Perspective>>() {}),
                     fromJson(report.getDensity(), new TypeReference<List<Density>>() {}),

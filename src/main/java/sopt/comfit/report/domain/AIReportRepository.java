@@ -9,15 +9,15 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface AIReportRepository extends JpaRepository<AIReport, Long> {
-    Page<AIReport> findByExperienceUserId(Long experienceUserId, Pageable pageable);
+    Page<AIReport> findByUserId(Long userId, Pageable pageable);
+
     @Query("""
         SELECT ar FROM AIReport ar
-        JOIN ar.experience e
         JOIN ar.company c
-        WHERE e.user.id = :userId
+        WHERE ar.userId = :userId
         AND (c.name LIKE %:keyword%)
         """)
-    Page<AIReport> findByExperienceUserIdAndKeyword(
+    Page<AIReport> findByUserIdAndKeyword(
             @Param("userId") Long userId,
             @Param("keyword") String keyword,
             Pageable pageable
@@ -25,9 +25,8 @@ public interface AIReportRepository extends JpaRepository<AIReport, Long> {
 
     @Query("SELECT a FROM AIReport a " +
             "JOIN FETCH a.company " +
-            "JOIN FETCH a.experience " +
-            "WHERE a.experience.user.id = :userId AND a.id = :id")
-    Optional<AIReport> findByExperienceUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
+            "WHERE a.userId = :userId AND a.id = :id")
+    Optional<AIReport> findByUserIdAndId(@Param("userId") Long userId, @Param("id") Long id);
 
-    boolean existsByCompanyIdAndExperienceUserId(Long companyId, Long userId);
+    boolean existsByCompanyIdAndUserId(Long companyId, Long userId);
 }

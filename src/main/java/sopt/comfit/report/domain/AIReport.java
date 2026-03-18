@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import sopt.comfit.company.domain.Company;
-import sopt.comfit.experience.domain.Experience;
 import sopt.comfit.global.base.BaseTimeEntity;
 
 @Entity
@@ -19,6 +18,24 @@ public class AIReport extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "experience_title", nullable = false)
+    private String experienceTitle;
+
+    @Column(name = "situation", nullable = false, columnDefinition = "TEXT")
+    private String situation;
+
+    @Column(name = "task", nullable = false, columnDefinition = "TEXT")
+    private String task;
+
+    @Column(name = "action", nullable = false, columnDefinition = "TEXT")
+    private String action;
+
+    @Column(name = "result", nullable = false, columnDefinition = "TEXT")
+    private String result;
 
     @Column(name = "job_description", nullable = false, columnDefinition = "TEXT")
     private String jobDescription;
@@ -42,51 +59,67 @@ public class AIReport extends BaseTimeEntity {
     private String guidance;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "experience_id", nullable = false)
-    private Experience experience;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
     @Builder(access = AccessLevel.PROTECTED)
     private AIReport(
+                     final Long userId,
+                     final String experienceTitle,
+                     final String situation,
+                     final String task,
+                     final String action,
+                     final String result,
                      final String jobDescription,
                      final String perspectives,
                      final String density,
                      final String appealPoint,
                      final String suggestion,
                      final String guidance,
-                     final Experience experience,
                      final Company company) {
+        this.userId = userId;
+        this.experienceTitle = experienceTitle;
+        this.situation = situation;
+        this.task = task;
+        this.action = action;
+        this.result = result;
         this.jobDescription = jobDescription;
         this.perspectives = perspectives;
         this.density = density;
         this.appealPoint = appealPoint;
         this.suggestion = suggestion;
         this.guidance = guidance;
-        this.experience = experience;
         this.company = company;
     }
 
     public static AIReport create(
+            final Long userId,
+            final String experienceTitle,
+            final String situation,
+            final String task,
+            final String action,
+            final String result,
             final String jobDescription,
             final String perspectives,
             final String density,
             final String appealPoint,
             final String suggestion,
             final String guidance,
-            final Experience experience,
             final Company company) {
 
         return AIReport.builder()
+                .userId(userId)
+                .experienceTitle(experienceTitle)
+                .situation(situation)
+                .task(task)
+                .action(action)
+                .result(result)
                 .jobDescription(jobDescription)
                 .perspectives(perspectives)
                 .density(density)
                 .appealPoint(appealPoint)
                 .suggestion(suggestion)
                 .guidance(guidance)
-                .experience(experience)
                 .company(company)
                 .build();
     }
