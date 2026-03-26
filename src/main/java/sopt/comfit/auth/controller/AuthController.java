@@ -61,7 +61,13 @@ public class AuthController implements AuthSwagger{
             HttpServletResponse response
     ) {
         LoginQueryDto loginQueryDto = kakaoAuthService.getKakaoUserInfoByCode(code);
-        response.addCookie(new Cookie("refreshToken", loginQueryDto.jwtDto().refreshToken()));
+
+        Cookie cookie = new Cookie("refreshToken", loginQueryDto.jwtDto().refreshToken());
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (refreshToken 만료와 맞춰서 조정)
+        response.addCookie(cookie);
+
         return LoginResponseDto.of(loginQueryDto);
     }
 }
