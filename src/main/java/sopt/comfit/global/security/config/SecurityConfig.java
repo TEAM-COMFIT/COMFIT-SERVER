@@ -14,7 +14,6 @@ import sopt.comfit.global.constants.Constants;
 import sopt.comfit.global.security.exception.CustomAccessDeniedHandler;
 import sopt.comfit.global.security.exception.CustomAuthenticationEntryPointerHandler;
 import sopt.comfit.global.security.filter.JwtAuthenticationFilter;
-import sopt.comfit.global.security.filter.JwtExceptionFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,7 +23,6 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPointerHandler customAuthenticationEntryPointerHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JwtExceptionFilter jwtExceptionFilter;
 
 
     @Bean
@@ -52,10 +50,6 @@ public class SecurityConfig {
 
                 .addFilterBefore(
                         jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class
-                )
-
-                .addFilterBefore(
-                        jwtExceptionFilter, JwtAuthenticationFilter.class
                 )
 
                 .getOrBuild();
