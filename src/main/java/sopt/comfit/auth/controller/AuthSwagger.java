@@ -9,14 +9,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import sopt.comfit.auth.dto.LoginResponseDto;
-import sopt.comfit.auth.dto.ReIssueTokenResponseDto;
+import sopt.comfit.auth.dto.AccessTokenResponseDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
-import sopt.comfit.auth.dto.request.ReIssueTokenRequestDto;
 import sopt.comfit.global.annotation.LoginUser;
 import sopt.comfit.global.dto.CommonApiResponse;
 import sopt.comfit.global.dto.CustomErrorResponse;
@@ -28,7 +24,7 @@ public interface AuthSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "경험 생성 성공",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ReIssueTokenResponseDto.class))),
+                            schema = @Schema(implementation = AccessTokenResponseDto.class))),
 
             @ApiResponse(responseCode = "403", description = "권한 오류",
                     content = @Content(mediaType = "application/json",
@@ -41,8 +37,9 @@ public interface AuthSwagger {
                             schema = @Schema(implementation = CustomErrorResponse.class)))
     })
     @PostMapping("/re-issued")
-    ReIssueTokenResponseDto reissueToken(
-            @RequestBody @Valid ReIssueTokenRequestDto request
+    AccessTokenResponseDto reissueToken(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response
     );
 
     @Operation(summary = "온보딩 ", description = "회원가입 시 필수 정보 입력")
@@ -109,5 +106,8 @@ public interface AuthSwagger {
     })
     @PostMapping("/logout")
     @SecurityRequirement(name = "JWT")
-    void logout(@LoginUser Long userId);
+    void logout(
+            @LoginUser Long userId,
+            HttpServletResponse response
+    );
 }

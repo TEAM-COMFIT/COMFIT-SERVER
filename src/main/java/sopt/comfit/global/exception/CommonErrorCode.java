@@ -30,6 +30,7 @@ public enum CommonErrorCode implements ErrorCode {
     TOKEN_UNSUPPORTED_ERROR(HttpStatus.UNAUTHORIZED, "AUTH_401_005", "지원하지않는 토큰입니다."),
     TOKEN_UNKNOWN_ERROR(HttpStatus.UNAUTHORIZED, "AUTH_401_006", "알 수 없는 토큰입니다."),
     AUTHENTICATION_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_401_007", "인증된 사용자 정보를 찾을 수 없습니다"),
+    REFRESH_TOKEN_EMPTY(HttpStatus.BAD_REQUEST, "AUTH_400_001", "리프레시 토큰이 비어있습니다."),
 
     // ===== 서버 에러 (5xx) =====
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER_500_001", "서버 내부 오류가 발생했습니다."),

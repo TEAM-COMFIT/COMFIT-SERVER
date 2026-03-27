@@ -1,19 +1,18 @@
 package sopt.comfit.auth.service;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sopt.comfit.auth.domain.RefreshToken;
 import sopt.comfit.auth.domain.RefreshTokenRepository;
-import sopt.comfit.auth.dto.ReIssueTokenResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
 import sopt.comfit.auth.dto.command.OnBoardingCommandDto;
 import sopt.comfit.auth.dto.query.LoginQueryDto;
-import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
 import sopt.comfit.auth.exception.AuthErrorCode;
 import sopt.comfit.auth.kakao.dto.KakaoUserApiResponseDto;
+import sopt.comfit.global.constants.Constants;
 import sopt.comfit.global.dto.JwtDto;
 import sopt.comfit.global.exception.BaseException;
 import sopt.comfit.global.exception.CommonErrorCode;
@@ -53,27 +52,35 @@ public class AuthService {
         refreshTokenRepository.deleteById(userId.toString());
     }
 
-    public ReIssueTokenResponseDto reissueToken(String refreshTokenStr) {
+    public JwtDto reissueToken(String refreshTokenStr) {
 
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenStr)
-                .orElseThrow(() -> {
-                    log.warn("만료된 토큰입니다.");
-                    return BaseException.type(AuthErrorCode.REFRESH_TOKEN_EXPIRATION);
-                });
-
-        try {
-            jwtUtil.validateToken(refreshTokenStr);
-        } catch (Exception e) {
-            log.warn("RefreshToken 검증 실패: {}", e.getMessage());
-            throw BaseException.type(CommonErrorCode.TOKEN_MALFORMED_ERROR);
+        if (refreshTokenStr == null) {
+            throw BaseException.type(CommonErrorCode.REFRESH_TOKEN_EMPTY);
         }
 
-        Long userId = Long.parseLong(refreshToken.getId());
+        Claims claims = jwtUtil.validateToken(refreshTokenStr);
+
+        Long userId = Long.valueOf(claims.get(Constants.CLAIM_USER_ID).toString());
+
+        RefreshToken savedToken = refreshTokenRepository.findById(userId.toString())
+                .orElseThrow(() -> BaseException.type(AuthErrorCode.REFRESH_TOKEN_EXPIRATION));
+
+        if (!savedToken.getToken().equals(refreshTokenStr)) {
+            throw BaseException.type(AuthErrorCode.REFRESH_TOKEN_EXPIRATION);
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> BaseException.type(UserErrorCode.USER_NOT_FOUND));
 
-        return ReIssueTokenResponseDto.from(jwtUtil.generateAccessToken(userId, user.getRole()));
+        refreshTokenRepository.deleteById(userId.toString());
+
+        JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
+
+        refreshTokenRepository.save(
+                RefreshToken.issueRefreshToken(user.getId(), jwtDto.refreshToken())
+        );
+
+        return jwtDto;
     }
 
     @Transactional
@@ -111,6 +118,9 @@ public class AuthService {
         );
 
         JwtDto jwtDto = jwtUtil.generateTokens(user.getId(), user.getRole());
+
+        refreshTokenRepository.save(RefreshToken.issueRefreshToken(user.getId(), jwtDto.refreshToken()));
+
         return LoginQueryDto.of(user.getId(), isNew, user.getName(), jwtDto);
     }
 }
