@@ -1,8 +1,6 @@
 package sopt.comfit.global.security.util;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
@@ -11,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.constants.Constants;
 import sopt.comfit.global.dto.JwtDto;
+import sopt.comfit.global.exception.BaseException;
+import sopt.comfit.global.exception.CommonErrorCode;
 import sopt.comfit.user.domain.ERole;
 
 import java.security.Key;
@@ -39,11 +39,23 @@ public class JwtUtil implements InitializingBean {
     }
 
     public Claims validateToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+        } catch (ExpiredJwtException e) {
+            throw BaseException.type(CommonErrorCode.EXPIRED_TOKEN_ERROR);
+
+        } catch (UnsupportedJwtException e) {
+            throw BaseException.type(CommonErrorCode.TOKEN_UNSUPPORTED_ERROR);
+
+        } catch (MalformedJwtException e) {
+            throw BaseException.type(CommonErrorCode.TOKEN_MALFORMED_ERROR);
+
+        }
     }
 
     private String generateToken(Long id, ERole role, Integer expiration) {
@@ -68,7 +80,4 @@ public class JwtUtil implements InitializingBean {
         );
     }
 
-    public String generateAccessToken(Long id, ERole role) {
-        return generateToken(id, role, accessExpiration);
-    }
 }

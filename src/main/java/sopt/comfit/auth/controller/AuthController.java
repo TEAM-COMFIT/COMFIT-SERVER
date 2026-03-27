@@ -1,18 +1,16 @@
 package sopt.comfit.auth.controller;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import sopt.comfit.auth.dto.AccessTokenResponseDto;
 import sopt.comfit.auth.dto.LoginResponseDto;
-import sopt.comfit.auth.dto.ReIssueTokenResponseDto;
 import sopt.comfit.auth.dto.command.LoginCommandDto;
 import sopt.comfit.auth.dto.command.OnBoardingCommandDto;
 import sopt.comfit.auth.dto.query.LoginQueryDto;
 import sopt.comfit.auth.dto.request.LoginRequestDto;
 import sopt.comfit.auth.dto.request.OnBoardingRequestDTO;
-import sopt.comfit.auth.dto.request.ReIssueTokenRequestDto;
 import sopt.comfit.auth.kakao.service.KakaoAuthService;
 import sopt.comfit.auth.service.AuthService;
 import sopt.comfit.global.annotation.LoginUser;
@@ -28,23 +26,41 @@ public class AuthController implements AuthSwagger{
 
     @PostMapping("/login")
     public JwtDto join(
-            @RequestBody @Valid LoginRequestDto request
+            @RequestBody @Valid LoginRequestDto request,
+            HttpServletResponse response
     ){
-        return authService.login(LoginCommandDto.from(request));
+        JwtDto dto = authService.login(LoginCommandDto.from(request));
+
+        response.addHeader("Set-Cookie",
+                "refreshToken=" + dto.refreshToken() +
+                        "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400");
+
+        return dto;
     }
 
     @Override
     public void logout(
-            @LoginUser Long userId
+            @LoginUser Long userId,
+            HttpServletResponse response
     ){
         authService.logout(userId);
+
+        response.addHeader("Set-Cookie",
+                "refreshToken=; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=0");
     }
 
     @Override
-    public ReIssueTokenResponseDto reissueToken(
-            @RequestBody @Valid ReIssueTokenRequestDto request
+    public AccessTokenResponseDto reissueToken(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response
     ) {
-        return authService.reissueToken(request.refreshToken());
+        JwtDto dto = authService.reissueToken(refreshToken);
+
+        response.addHeader("Set-Cookie",
+                "refreshToken=" + dto.refreshToken() +
+                        "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400");
+
+        return AccessTokenResponseDto.from(dto.accessToken());
     }
 
     @Override
@@ -62,11 +78,9 @@ public class AuthController implements AuthSwagger{
     ) {
         LoginQueryDto loginQueryDto = kakaoAuthService.getKakaoUserInfoByCode(code);
 
-        Cookie cookie = new Cookie("refreshToken", loginQueryDto.jwtDto().refreshToken());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (refreshToken 만료와 맞춰서 조정)
-        response.addCookie(cookie);
+        response.addHeader("Set-Cookie",
+                "refreshToken=" + loginQueryDto.jwtDto().refreshToken() +
+                        "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400");
 
         return LoginResponseDto.of(loginQueryDto);
     }
