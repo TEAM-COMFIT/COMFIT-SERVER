@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.constants.Constants;
@@ -18,13 +19,16 @@ import sopt.comfit.report.service.AIReportCommandService;
 import sopt.comfit.report.service.AIReportQueryService;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AIReportJobWorker {
+
+    private static final int WORKER_COUNT = 2;
 
     private final StringRedisTemplate redisTemplate;
     private final AIReportJobService reportJobService;
@@ -32,39 +36,73 @@ public class AIReportJobWorker {
     private final AIReportCommandService aiReportCommandService;
     private final RetryableAiCallerService aiCaller;
 
-    List<Thread> workers = new ArrayList<>();
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    List<Thread> workers = new CopyOnWriteArrayList<>();
 
     @PostConstruct
     public void startWorker() {
-        int workerCount = 2;
-        workers = new ArrayList<>();
-        for (int i = 0; i < workerCount; i++) {
-            Thread t = Thread.ofVirtual()
-                    .name("report-job-worker-" + i)
-                    .start(this::listen);
-            workers.add(t);
+        running.set(true);
+        workers = new CopyOnWriteArrayList<>();
+        for (int i = 0; i < WORKER_COUNT; i++) {
+            spawnWorker(i);
         }
-        log.info("ReportJobWorker {}개 시작", workerCount);
+        log.info("ReportJobWorker {}개 시작", WORKER_COUNT);
     }
 
     @PreDestroy
     public void stopWorker() {
+        running.set(false);
         workers.forEach(Thread::interrupt);
         log.info("ReportJobWorker 종료");
     }
 
+    private void spawnWorker(int index) {
+        Thread t = Thread.ofVirtual()
+                .name("report-job-worker-" + index)
+                .start(() -> guardedListen(index));
+        workers.add(t);
+    }
+
+    /**
+     * listen()을 감싸서 Error 포함 Throwable이 발생해 스레드가 죽어도
+     * running 상태면 자동으로 재시작한다.
+     */
+    private void guardedListen(int index) {
+        while (running.get()) {
+            try {
+                listen();
+            } catch (Throwable t) {
+                if (!running.get()) break;
+                log.error("Worker-{} 치명적 오류로 종료, 3초 후 재시작", index, t);
+                sleep(3);
+            }
+        }
+        log.info("Worker-{} 정상 종료", index);
+    }
+
     private void listen() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && running.get()) {
             try {
                 String jobId = redisTemplate.opsForList()
                         .rightPop(Constants.JOB_QUEUE_KEY, Duration.ofSeconds(30));
-
                 if (jobId == null) continue;
-
                 processJob(Long.parseLong(jobId));
+
+            } catch (QueryTimeoutException e) {
+                log.debug("BRPOP timeout, 재시도");
+
             } catch (Exception e) {
                 log.error("Worker 루프 에러", e);
+                sleep(3); // Redis 장애 시 스핀 방지
             }
+        }
+    }
+
+    private void sleep(int seconds) {
+        try {
+            Thread.sleep(Duration.ofSeconds(seconds));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
