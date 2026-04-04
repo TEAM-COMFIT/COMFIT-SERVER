@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import sopt.comfit.global.constants.Constants;
@@ -58,13 +59,24 @@ public class AIReportJobWorker {
             try {
                 String jobId = redisTemplate.opsForList()
                         .rightPop(Constants.JOB_QUEUE_KEY, Duration.ofSeconds(30));
-
                 if (jobId == null) continue;
-
                 processJob(Long.parseLong(jobId));
+
+            } catch (QueryTimeoutException e) {
+                log.debug("BRPOP timeout, 재시도");
+
             } catch (Exception e) {
                 log.error("Worker 루프 에러", e);
+                sleep(3); // Redis 장애 시 스핀 방지
             }
+        }
+    }
+
+    private void sleep(int seconds) {
+        try {
+            Thread.sleep(Duration.ofSeconds(seconds));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
