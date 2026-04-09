@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # EC2-1 blue 앱 (8080)
+  - job_name: 'comfit-blue'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['172.31.32.229:8080']
+        labels:
+          application: 'comfit'
+          color: 'blue'
+
+  # EC2-1 green 앱 (8081)
+  - job_name: 'comfit-green'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['172.31.32.229:8081']
+        labels:
+          application: 'comfit'
+          color: 'green'

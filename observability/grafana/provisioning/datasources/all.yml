@@ -1,0 +1,64 @@
+apiVersion: 1
+
+datasources:
+  # ----------------------------------------------------------
+  # Prometheus: 메트릭
+  # ----------------------------------------------------------
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: tempo
+
+  # ----------------------------------------------------------
+  # Loki: 로그
+  # Derived Fields: 로그에서 traceId 추출 → Tempo 원클릭 점프
+  # ----------------------------------------------------------
+  - name: Loki
+    type: loki
+    uid: loki
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - name: TraceID
+          # 로그 형식: "INFO [comfit,<traceId>,<spanId>]"
+          # logging.pattern.level 에서 생성되는 32자 hex traceId 추출
+          matcherRegex: "\\[comfit,([a-f0-9]{32}),"
+          url: "$${__value.raw}"
+          datasourceUid: tempo
+
+  # ----------------------------------------------------------
+  # Tempo: 트레이스
+  # traceId로 Loki 로그와 연동
+  # ----------------------------------------------------------
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    url: http://tempo:3200
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki
+        tags:
+          - key: container
+        filterByTraceID: true
+        filterBySpanID: false
+        spanStartTimeShift: '-1m'
+        spanEndTimeShift: '1m'
+      tracesToMetrics:
+        datasourceUid: prometheus
+        tags:
+          - key: service.name
+            value: application
+        queries:
+          - name: Request Rate
+            query: 'rate(http_server_requests_seconds_count{$$__tags}[5m])'
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
