@@ -2,7 +2,7 @@ name: Blue-Green Deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [dev, refactor/#105_tempo_alloy]
 
 jobs:
   build:
