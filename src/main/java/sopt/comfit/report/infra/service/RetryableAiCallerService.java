@@ -3,6 +3,8 @@ package sopt.comfit.report.infra.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,7 @@ public class RetryableAiCallerService {
     private final JsonUtils jsonUtils;
     private static final int MAX_RETRY = 2;
     private final ContextAwareExecutor contextAwareExecutor;
+    private final ObservationRegistry observationRegistry;
 
     // Feign 동기 호출
     public String callSync(String prompt) {
@@ -107,9 +110,13 @@ public class RetryableAiCallerService {
             try {
                 log.info("{} 호출 시작", taskName);
 
-                String content = openAiFeignClient
-                        .createReport(CreateReportAiRequestDto.from(prompt))
-                        .getContent();
+                // 부모 Span(job.process) 아래에 AI 호출 구간을 child Span으로 기록
+                String content = Observation.createNotStarted("ai.call", observationRegistry)
+                        .contextualName(taskName)
+                        .observe(() -> openAiFeignClient
+                                .createReport(CreateReportAiRequestDto.from(prompt))
+                                .getContent());
+
                 String cleaned = jsonUtils.clean(content);
                 validateJsonSyncWithField(cleaned, requiredField);
 
