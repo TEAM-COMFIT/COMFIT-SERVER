@@ -2,6 +2,12 @@ spring:
   profiles:
     default: local
 
+logging:
+  pattern:
+    # Micrometer Tracing이 MDC에 traceId/spanId를 자동으로 주입
+    # Loki Derived Fields가 이 형식에서 traceId를 추출 → Tempo 원클릭 점프
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
 ---
 
 spring:

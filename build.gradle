@@ -99,6 +99,11 @@ dependencies {
 
     implementation 'io.micrometer:context-propagation:1.1.1'
 
+    // Micrometer Tracing — OTel 브릿지 (Spring Boot 3.4.2 BOM 버전 관리)
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    // OTLP Exporter — Alloy로 트레이스 전송
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+
     //resilience4j
     implementation 'io.github.resilience4j:resilience4j-spring-boot3'
     implementation 'io.github.resilience4j:resilience4j-reactor'

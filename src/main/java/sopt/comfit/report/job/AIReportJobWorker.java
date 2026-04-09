@@ -1,5 +1,7 @@
 package sopt.comfit.report.job;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class AIReportJobWorker {
     private final AIReportQueryService aiReportQueryService;
     private final AIReportCommandService aiReportCommandService;
     private final RetryableAiCallerService aiCaller;
+    private final ObservationRegistry observationRegistry;
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     List<Thread> workers = new CopyOnWriteArrayList<>();
@@ -107,41 +110,47 @@ public class AIReportJobWorker {
     }
 
     private void processJob(Long jobId) {
+        // 루트 Span 생성 — Worker는 HTTP 요청이 아니라 Micrometer가 자동 생성 안 함
+        // Observation을 시작하면 traceId/spanId가 MDC에 자동 주입되고
+        // 내부의 Feign 호출(perspectives, density 등)이 child Span으로 자동 연결됨
+        Observation observation = Observation.createNotStarted("job.process", observationRegistry)
+                .lowCardinalityKeyValue("jobId", String.valueOf(jobId));
 
-        try {
-            //MDC 설정
-            MdcUtils.generateTraceId();
-            MdcUtils.setJobId(jobId);
+        observation.observe(() -> {
+            try {
+                // jobId는 Micrometer가 자동으로 안 넣어주므로 직접 설정
+                MdcUtils.setJobId(jobId);
 
-            log.info("Job 처리 시작");
-            reportJobService.startProcessing(jobId);
+                log.info("Job 처리 시작");
+                reportJobService.startProcessing(jobId);
 
-            MatchExperienceCommandDto command = buildCommand(jobId);
-            PreparedDataDto data = aiReportQueryService.prepareData(command);
+                MatchExperienceCommandDto command = buildCommand(jobId);
+                PreparedDataDto data = aiReportQueryService.prepareData(command);
 
-            String perspectivesJson = aiCaller.callSyncWithField(
-                    AIReportParallelPromptBuilder.buildPerspective(data),
-                    "Perspectives", "perspectives");
+                String perspectivesJson = aiCaller.callSyncWithField(
+                        AIReportParallelPromptBuilder.buildPerspective(data),
+                        "Perspectives", "perspectives");
 
-            String mergedJson = aiCaller.callParallelWithVirtualThread(data, perspectivesJson);
+                String mergedJson = aiCaller.callParallelWithVirtualThread(data, perspectivesJson);
 
-            aiReportCommandService.parseAndSave(mergedJson, data.experience(),
-                    data.company(), command.jobDescription());
+                aiReportCommandService.parseAndSave(mergedJson, data.experience(),
+                        data.company(), command.jobDescription());
 
-            reportJobService.complete(jobId);
-            log.info("Job 처리 완료 - jobId: {}", jobId);
+                reportJobService.complete(jobId);
+                log.info("Job 처리 완료 - jobId: {}", jobId);
 
-        } catch (BaseException e) {
-            log.warn("Job 실패 - jobId={}", jobId, e);
-            reportJobService.fail(jobId);
+            } catch (BaseException e) {
+                log.warn("Job 실패 - jobId={}", jobId, e);
+                reportJobService.fail(jobId);
 
-        } catch (Exception e) {
-            log.error("Job 시스템 오류 - jobId={}", jobId, e);
-            reportJobService.fail(jobId);
+            } catch (Exception e) {
+                log.error("Job 시스템 오류 - jobId={}", jobId, e);
+                reportJobService.fail(jobId);
 
-        } finally {
-            MdcUtils.clear();
-        }
+            } finally {
+                MdcUtils.clear();
+            }
+        });
     }
 
     private MatchExperienceCommandDto buildCommand(Long jobId) {
