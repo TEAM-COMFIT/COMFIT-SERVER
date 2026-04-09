@@ -1,0 +1,27 @@
+version: '3.8'
+
+# ============================================================
+# EC2-1 (앱 서버) 전용 — Alloy 에이전트
+#
+# 역할:
+#   1. 로그: Docker socket → blue/green 로그 읽기 → EC2-2 Loki push
+#   2. 트레이스: Spring Boot OTLP 수신(4318) → EC2-2 Tempo 전달
+#
+# Spring Boot application-prod.yml:
+#   management.otlp.tracing.endpoint: http://172.17.0.1:4318/v1/traces
+# ============================================================
+
+services:
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    ports:
+      - "4317:4317"    # OTLP gRPC (Spring Boot → Alloy)
+      - "4318:4318"    # OTLP HTTP (Spring Boot → Alloy)
+      - "12345:12345"  # Alloy 관리 UI
+    volumes:
+      - ./observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    user: root
+    restart: unless-stopped
