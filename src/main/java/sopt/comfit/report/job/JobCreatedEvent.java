@@ -1,4 +1,4 @@
 package sopt.comfit.report.job;
 
-public record JobCreatedEvent(Long jobId) {
+public record JobCreatedEvent(Long jobId, String traceparent) {
 }

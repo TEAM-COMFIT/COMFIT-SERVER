@@ -103,6 +103,8 @@ dependencies {
     implementation 'io.micrometer:micrometer-tracing-bridge-otel'
     // OTLP Exporter — Alloy로 트레이스 전송
     implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+    // DB (JDBC/JPA) 쿼리 단위 Span — 각 SQL 쿼리를 child Span으로 계측
+    implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot:1.0.6'
 
     //resilience4j
     implementation 'io.github.resilience4j:resilience4j-spring-boot3'
