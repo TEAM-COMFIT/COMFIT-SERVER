@@ -1,0 +1,76 @@
+// ============================================================
+// Alloy 설정 — EC2-1 에이전트
+// 로그: Docker socket → blue/green 로그 → EC2-2 Loki
+// 트레이스: OTLP 수신 (Spring Boot) → EC2-2 Tempo
+// ============================================================
+
+// ------------------------------------------------------------
+// [로그 파이프라인]
+// ------------------------------------------------------------
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "app_containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(blue|green)"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container"
+    regex         = "/(.*)"
+    replacement   = "$1"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "comfit"
+  }
+}
+
+loki.source.docker "app_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.app_containers.output
+  forward_to = [loki.write.default.receiver]
+}
+
+// EC2-2 Loki로 push
+loki.write "default" {
+  endpoint {
+    url = "http://172.31.33.20:3100/loki/api/v1/push"
+  }
+}
+
+// ------------------------------------------------------------
+// [트레이스 파이프라인]
+// ------------------------------------------------------------
+
+// Spring Boot → Alloy OTLP 수신
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+// EC2-2 Tempo로 전달
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "172.31.33.20:4317"
+    tls {
+      insecure = true
+    }
+  }
+}

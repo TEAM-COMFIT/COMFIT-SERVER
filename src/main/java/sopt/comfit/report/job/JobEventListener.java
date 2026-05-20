@@ -15,9 +15,10 @@ public class JobEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleJobCreated(JobCreatedEvent event) {
-        stringRedisTemplate.opsForList().leftPush(
-                Constants.JOB_QUEUE_KEY,
-                String.valueOf(event.jobId())
-        );
+        // traceparent가 있으면 "jobId|traceparent" 형태로 저장해 Worker가 parent trace에 연결할 수 있도록
+        String value = event.traceparent() != null
+                ? event.jobId() + "|" + event.traceparent()
+                : String.valueOf(event.jobId());
+        stringRedisTemplate.opsForList().leftPush(Constants.JOB_QUEUE_KEY, value);
     }
 }

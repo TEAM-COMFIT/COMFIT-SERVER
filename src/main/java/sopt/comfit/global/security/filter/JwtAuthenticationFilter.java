@@ -48,7 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
-            MdcUtils.generateTraceId();
+            // traceId/spanId는 Micrometer Tracing이 MDC에 자동 주입
+            // MdcUtils.generateTraceId() 제거 — 커스텀 8자 UUID가 Micrometer traceId(32자 hex)를 덮어쓰는 충돌 방지
 
             String header = request.getHeader(Constants.PREFIX_AUTH);
             log.info("header:{}", header);

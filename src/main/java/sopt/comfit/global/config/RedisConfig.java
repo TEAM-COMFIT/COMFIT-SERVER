@@ -1,5 +1,8 @@
 package sopt.comfit.global.config;
 
+import io.lettuce.core.tracing.MicrometerTracing;
+import io.micrometer.observation.ObservationRegistry;
+import org.springframework.boot.autoconfigure.data.redis.ClientResourcesBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +19,15 @@ import java.time.Duration;
 @EnableCaching
 @Configuration
 public class RedisConfig {
+
+    /**
+     * Lettuce Redis 커맨드를 Micrometer Observation으로 계측 → Tempo에 child Span으로 전송
+     * includeCommandArgsInSpanTags=true : GET key, SET key value 등 인자를 span tag로 기록
+     */
+    @Bean
+    public ClientResourcesBuilderCustomizer lettuceTracingCustomizer(ObservationRegistry observationRegistry) {
+        return builder -> builder.tracing(new MicrometerTracing(observationRegistry, "redis", true));
+    }
 
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {

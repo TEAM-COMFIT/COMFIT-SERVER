@@ -1,5 +1,10 @@
 package sopt.comfit.report.job;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.TextMapGetter;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +40,7 @@ public class AIReportJobWorker {
     private final AIReportQueryService aiReportQueryService;
     private final AIReportCommandService aiReportCommandService;
     private final RetryableAiCallerService aiCaller;
+    private final ObservationRegistry observationRegistry;
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     List<Thread> workers = new CopyOnWriteArrayList<>();
@@ -83,10 +89,16 @@ public class AIReportJobWorker {
     private void listen() {
         while (!Thread.currentThread().isInterrupted() && running.get()) {
             try {
-                String jobId = redisTemplate.opsForList()
+                String raw = redisTemplate.opsForList()
                         .rightPop(Constants.JOB_QUEUE_KEY, Duration.ofSeconds(30));
-                if (jobId == null) continue;
-                processJob(Long.parseLong(jobId));
+                if (raw == null) continue;
+
+                // "jobId|traceparent" 또는 "jobId" 형태 파싱
+                String[] parts = raw.split("\\|", 2);
+                Long jobId = Long.parseLong(parts[0]);
+                String traceparent = parts.length > 1 ? parts[1] : null;
+
+                processJob(jobId, traceparent);
 
             } catch (QueryTimeoutException e) {
                 log.debug("BRPOP timeout, 재시도");
@@ -106,42 +118,64 @@ public class AIReportJobWorker {
         }
     }
 
-    private void processJob(Long jobId) {
+    private void processJob(Long jobId, String traceparent) {
+        // traceparent가 있으면 HTTP 요청 trace의 child span으로 연결
+        // 없으면 새 root trace 시작 (이전 버전 Redis 값 대비 방어)
+        Context parentContext = traceparent != null
+                ? W3CTraceContextPropagator.getInstance().extract(
+                        Context.root(), traceparent,
+                        new TextMapGetter<String>() {
+                            @Override
+                            public Iterable<String> keys(String carrier) {
+                                return java.util.List.of("traceparent");
+                            }
+                            @Override
+                            public String get(String carrier, String key) {
+                                return "traceparent".equals(key) ? carrier : null;
+                            }
+                        })
+                : Context.current();
 
-        try {
-            //MDC 설정
-            MdcUtils.generateTraceId();
-            MdcUtils.setJobId(jobId);
+        try (io.opentelemetry.context.Scope ignored = parentContext.makeCurrent()) {
+            Observation observation = Observation.createNotStarted("job.process", observationRegistry)
+                    .lowCardinalityKeyValue("jobId", String.valueOf(jobId));
 
-            log.info("Job 처리 시작");
-            reportJobService.startProcessing(jobId);
+            observation.observe(() -> {
+            try {
+                // jobId는 Micrometer가 자동으로 안 넣어주므로 직접 설정
+                MdcUtils.setJobId(jobId);
 
-            MatchExperienceCommandDto command = buildCommand(jobId);
-            PreparedDataDto data = aiReportQueryService.prepareData(command);
+                log.info("Job 처리 시작");
+                reportJobService.startProcessing(jobId);
 
-            String perspectivesJson = aiCaller.callSyncWithField(
-                    AIReportParallelPromptBuilder.buildPerspective(data),
-                    "Perspectives", "perspectives");
+                MatchExperienceCommandDto command = buildCommand(jobId);
+                PreparedDataDto data = aiReportQueryService.prepareData(command);
 
-            String mergedJson = aiCaller.callParallelWithVirtualThread(data, perspectivesJson);
+                String perspectivesJson = aiCaller.callSyncWithField(
+                        AIReportParallelPromptBuilder.buildPerspective(data),
+                        "Perspectives", "perspectives");
 
-            aiReportCommandService.parseAndSave(mergedJson, data.experience(),
-                    data.company(), command.jobDescription());
+                String mergedJson = aiCaller.callParallelWithVirtualThread(data, perspectivesJson);
 
-            reportJobService.complete(jobId);
-            log.info("Job 처리 완료 - jobId: {}", jobId);
+                aiReportCommandService.parseAndSave(mergedJson, data.experience(),
+                        data.company(), command.jobDescription());
 
-        } catch (BaseException e) {
-            log.warn("Job 실패 - jobId={}", jobId, e);
-            reportJobService.fail(jobId);
+                reportJobService.complete(jobId);
+                log.info("Job 처리 완료 - jobId: {}", jobId);
 
-        } catch (Exception e) {
-            log.error("Job 시스템 오류 - jobId={}", jobId, e);
-            reportJobService.fail(jobId);
+            } catch (BaseException e) {
+                log.warn("Job 실패 - jobId={}", jobId, e);
+                reportJobService.fail(jobId);
 
-        } finally {
-            MdcUtils.clear();
-        }
+            } catch (Exception e) {
+                log.error("Job 시스템 오류 - jobId={}", jobId, e);
+                reportJobService.fail(jobId);
+
+            } finally {
+                MdcUtils.clear();
+            }
+        });
+        } // try (parentContext.makeCurrent())
     }
 
     private MatchExperienceCommandDto buildCommand(Long jobId) {
