@@ -1,0 +1,92 @@
+version: '3.8'
+
+# ============================================================
+# Observability Stack — EC2-2 (172.31.47.238) 전용
+#
+# EC2-1(앱 서버)에서 오는 트래픽:
+#   - Alloy → Loki  : EC2-1 Alloy가 3100으로 로그 push
+#   - Alloy → Tempo : EC2-1 Alloy가 4317로 트레이스 전달
+#   - Prometheus    : EC2-2 Prometheus가 EC2-1 8080/8081 스크래핑
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # Loki: 로그 저장소
+  # EC2-1의 Alloy가 push
+  # ----------------------------------------------------------
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: loki
+    user: "0"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki.yml:/etc/loki/config.yml:ro
+      - loki_data:/var/loki
+    command: -config.file=/etc/loki/config.yml
+    restart: unless-stopped
+
+  # ----------------------------------------------------------
+  # Prometheus: 메트릭 수집
+  # EC2-1의 blue(8080), green(8081) 스크래핑
+  # ----------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-remote-write-receiver'
+    restart: unless-stopped
+
+  # ----------------------------------------------------------
+  # Tempo: 트레이스 저장소
+  # 4317: EC2-1 Alloy가 트레이스 전달 (외부 오픈)
+  # 3200: Grafana가 쿼리 (내부 통신)
+  # ----------------------------------------------------------
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    ports:
+      - "3200:3200"
+      - "4317:4317"   # EC2-1 Alloy → Tempo OTLP gRPC
+    volumes:
+      - ./observability/tempo/tempo.yml:/etc/tempo/config.yml:ro
+      - tempo_data:/var/tempo
+    command: -config.file=/etc/tempo/config.yml
+    restart: unless-stopped
+
+  # ----------------------------------------------------------
+  # Grafana: 시각화 (Prometheus + Loki + Tempo 통합)
+  # SSH 터널링으로 접근: ssh -L 3000:localhost:3000 ubuntu@EC2-2-IP
+  # ----------------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    restart: unless-stopped
+
+volumes:
+  loki_data:
+  prometheus_data:
+  tempo_data:
+  grafana_data:
